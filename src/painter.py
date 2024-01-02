@@ -3,11 +3,12 @@ import cv2
 from PIL import Image
 
 # A function for Integration and assimilation of inputs
-def Integrator(input_image):
+def Integrator(input_image, output_size=[3508, 2480]):
     """
     Integrates the image
         Image types are different for example some of them have 3 channels, some of them are simple 2D arrays with 0-255 values, and so many other types.
-        This function receives different types of image and return unique type.
+        Also They may have different sizes
+        This function receives different types of image and return unique type and size.
     Args:
         image: Image in grayscale
     Returns:
@@ -24,6 +25,13 @@ def Integrator(input_image):
         raise ValueError("Image not found")
     else:
         raise ValueError("Unsupported image input type")
+
+    # Fit image in output_size rectangle
+    ratio = min(output_size[0] / image.shape[0], output_size[1] / image.shape[1])
+    print(ratio)
+    print(image.shape)
+    image = cv2.resize(image, (0, 0), fx=ratio, fy=ratio)
+    print(image.shape)
 
     return image
 
@@ -56,7 +64,7 @@ def painter(bin_img):
 
 def algorithm_tester():
 
-    test_image = cv2.imread("./assets/images/test/text-art.jpg")
+    test_image = cv2.imread("./assets/images/test/test-img.png") # text-art.jpg
     Integrated_test_image = Integrator(test_image)
     binary_test_image = convert_to_binary(test_image)
     painter(binary_test_image)
