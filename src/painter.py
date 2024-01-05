@@ -16,8 +16,7 @@ A3_paper_size = [3508, 2480]
 def Integrator(input_image, output_size=A3_paper_size):
     """
     Integrates the image
-        Image types are different for example some of them have 3 channels, some of them are simple 2D arrays with 0-255 values, and so many other types.
-        Also They may have different sizes
+        Image types and sizesare different.
         This function receives different types of image and return unique type and size.
     Args:
         input_image: Image in grayscale
@@ -54,7 +53,7 @@ def convert_to_binary(img):
     """
     
     gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    binary_image = cv2.threshold(gray_image, 0, 255, cv2.THRESH_OTSU)[1]
+    binary_image = cv2.threshold(gray_image, 127, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY)[1]
     
     return binary_image
 
@@ -90,8 +89,8 @@ def main(Args=None):
 
     def algorithm_tester():
 
-        # test_image = cv2.imread("./assets/images/test/text-art.jpg")
-        test_image = text_to_image()
+        test_image = cv2.imread("./assets/images/test/test-img.png")
+        # test_image = text_to_image()
         Integrated_test_image = Integrator(test_image)
         binary_test_image = convert_to_binary(Integrated_test_image)
         painter(binary_test_image)
