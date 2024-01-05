@@ -90,7 +90,7 @@ def main(Args=None):
 
     def algorithm_tester():
 
-        # test_image = cv2.imread("./assets/images/test/test-img.png")
+        # test_image = cv2.imread("./assets/images/test/text-art.jpg")
         test_image = text_to_image()
         Integrated_test_image = Integrator(test_image)
         binary_test_image = convert_to_binary(Integrated_test_image)
