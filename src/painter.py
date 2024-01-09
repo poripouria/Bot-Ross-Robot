@@ -80,7 +80,6 @@ def text_to_image(txt="Hello, I am Bot Ross."):
         Image
     """
 
-    # Handle Char per Line
     if 60 < len(txt):
         print('Text is too long')
         txt = txt[:60]
@@ -108,6 +107,7 @@ def image_to_graph(bin_img):
     Returns:
         Graph
     """
+
     rows, cols = bin_img.shape
     graph = {}
 
@@ -140,6 +140,7 @@ def find_spanning_trees(graph):
     Returns:
         List of spanning trees (subgraphs) with edges
     """
+
     visited = set()
     spanning_trees = []
 
@@ -173,10 +174,9 @@ def painter(bin_img, output_file='botross-painting-simulator.txt'):
     def find_nearest_node(robot_position, nodes):
         return min(nodes, key=lambda node: euclidean(robot_position, node))
 
+    robot_position = [0, 0]
     graph = image_to_graph(bin_img)
     spanning_trees = find_spanning_trees(graph)
-
-    robot_position = [0, 0]
 
     with open(output_file, 'w') as file:
         for idx, spanning_tree in enumerate(spanning_trees):
