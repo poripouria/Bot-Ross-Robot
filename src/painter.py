@@ -1,7 +1,7 @@
 import numpy as np
-import cv2
 from scipy.spatial.distance import euclidean
 import matplotlib.pyplot as plt
+import cv2
 from PIL import Image, ImageDraw, ImageFont
 
 class BotRoss():
@@ -11,10 +11,9 @@ class BotRoss():
     def __init__(self):
         pass
 
-A3_paper_size = [3508, 2480]
+Board_Size = [300, 200] # 30cm × 20cm (In BRPixel format)
 
-# A function for Integration and assimilation of inputs
-def Integrator(input_image, output_size=A3_paper_size):
+def Integrator(input_image, output_size=Board_Size):
     """
     Integrates the image
         Image types and sizesare different.
@@ -25,13 +24,10 @@ def Integrator(input_image, output_size=A3_paper_size):
         Integrated image
     """
     
-    # Handle Input
     if isinstance(input_image, str):
         image = cv2.imread(input_image)
     elif isinstance(input_image, np.ndarray):
-        # Handle Image channels
         if len(input_image.shape) == 2:
-            # image = np.reshape(input_image, (input_image.shape[0], input_image.shape[1], 3))
             if input_image.dtype == 'int32':
                 input_image = cv2.convertScaleAbs(input_image) 
             image = cv2.cvtColor(input_image, cv2.COLOR_GRAY2RGB)
@@ -44,16 +40,22 @@ def Integrator(input_image, output_size=A3_paper_size):
     else:
         raise ValueError("Unsupported image input type")
 
-    # Fit image in output_size rectangle
-    min_threshold = 200
-    if image.shape[0] < min_threshold or image.shape[1] < min_threshold:
-        return image
+    print(f'Image size before: {image.shape}')
+    # Fit to Board_Size
+    if image.shape[0] >= output_size[1] and image.shape[1] <= output_size[0]:
+        scale = output_size[1] / image.shape[0]
+    elif image.shape[1] >= output_size[0] and image.shape[0] <= output_size[1]:
+        scale = output_size[0] / image.shape[1]
+    elif image.shape[1] <= output_size[0] and image.shape[0] <= output_size[1]:
+        scale = min(output_size[0] / image.shape[1], output_size[1] / image.shape[0])
     else:
-        ratio = min(output_size[0] / image.shape[0], output_size[1] / image.shape[1])
-        print(ratio)
-        final_image = cv2.resize(image, (0, 0), fx=ratio, fy=ratio, interpolation=cv2.INTER_NEAREST)
-
-        return final_image
+        scale = min(image.shape[0] / output_size[1], image.shape[1] / output_size[0])
+    print(f'Scaling Ratio: {scale}')
+    final_image = cv2.resize(image, None, fx=scale, fy=scale, interpolation= cv2.INTER_NEAREST) 
+    # Fill in Board_Size
+    # final_image = cv2.resize(image, (output_size[0], output_size[1]), fx=1, fy=1, interpolation= cv2.INTER_NEAREST) 
+    print(f'Image size AFTER: {final_image.shape}') 
+    return final_image
 
 def convert_to_binary(img):
     """
@@ -77,12 +79,26 @@ def text_to_image(txt="Hello, I am Bot Ross."):
     Returns:
         Image
     """
-    img = Image.new('RGB', (A3_paper_size[0], A3_paper_size[1]), (255, 255, 255))
-    d = ImageDraw.Draw(img)
-    font = ImageFont.truetype("./assets/fonts/Seven Segment.ttf", 300)
-    d.text((100,100), txt, font=font, fill=(0,0,0))
 
-    return np.array(img)
+    # Handle Char per Line
+    if 60 < len(txt):
+        print('Text is too long')
+        txt = txt[:60]
+    if 15 < len(txt) <= 30:
+        for i in range(15, len(txt)):
+            if txt[i] == ' ':
+                txt = txt[:i] + '\n' + txt[i+1:]
+    if 30 < len(txt) <= 60:
+        for i in range(30, len(txt)):
+            if txt[i] == ' ':
+                txt = txt[:i] + '\n' + txt[i+1:]
+    img = Image.new('RGB', (Board_Size[0], Board_Size[1]), (255, 255, 255))
+    d = ImageDraw.Draw(img)
+    font = ImageFont.truetype("./assets/fonts/Seven Segment.ttf", int(Board_Size[1]/5))
+    d.text((int(Board_Size[0]/100), int(Board_Size[1]/150)), txt, font=font, fill=(0,0,0))
+    img = np.array(img)
+
+    return img
 
 def image_to_graph(bin_img):
     """
@@ -107,7 +123,7 @@ def image_to_graph(bin_img):
 
     for x in range(rows):
         for y in range(cols):
-            if bin_img[x, y] == 0:  # Black pixel
+            if bin_img[x, y] == 0:
                 for i in range(x - 1, x + 2):
                     for j in range(y - 1, y + 2):
                         if is_valid(i, j) and bin_img[i, j] == 0 and (i != x or j != y):
@@ -157,33 +173,26 @@ def painter(bin_img, output_file='botross-painting-simulator.txt'):
     def find_nearest_node(robot_position, nodes):
         return min(nodes, key=lambda node: euclidean(robot_position, node))
 
-    # Find the spanning trees
     graph = image_to_graph(bin_img)
     spanning_trees = find_spanning_trees(graph)
 
-    # Initial position of the robot
     robot_position = [0, 0]
 
-    # Simulate the painting process for each spanning tree
     with open(output_file, 'w') as file:
         for idx, spanning_tree in enumerate(spanning_trees):
             file.write(f"Painting Segment {idx + 1}:\n")
 
-            # Get the nodes and edges for the current spanning tree
             nodes = spanning_tree['nodes']
             edges = spanning_tree['edges']
 
-            # Find the nearest node and move to it
             nodes = [list(map(int, node[1:].split('_'))) for node in nodes]
             nearest_node = find_nearest_node(robot_position, nodes)
             x, y = nearest_node
             z = 0 if bin_img[x, y] == 0 else 1
             file.write(f"Move to ({x}, {y}, {z})\n")
 
-            # Update the robot's position
             robot_position = nearest_node
 
-            # Simulate the robot's drawing along the edges
             for edge in edges:
                 start, end = edge
                 x_start, y_start = map(int, start[1:].split('_'))
@@ -193,7 +202,7 @@ def painter(bin_img, output_file='botross-painting-simulator.txt'):
 def main(Args=None):
 
     def algorithm_tester():
-        test_image = cv2.imread("./assets/images/test/test-img.png")
+        # test_image = cv2.imread("./assets/images/test/test-img.png")
         test_image = text_to_image()
         # test_image = np.array([[1, 0, 1, 0],
         #                        [1, 0, 0, 1],
@@ -204,16 +213,16 @@ def main(Args=None):
         #                        [0, 1, 0, 1, 0],
         #                        [0, 1, 0, 1, 0],
         #                        [0, 1, 0, 1, 0]])
-        test_image = np.array([[1, 1, 1, 1, 1],
-                               [1, 0, 0, 0, 1],
-                               [1, 0, 0, 0, 1],
-                               [1, 0, 0, 0, 1],
-                               [1, 1, 1, 1, 1]])
+        # test_image = np.array([[1, 1, 1, 1, 1],
+        #                        [1, 0, 0, 0, 1],
+        #                        [1, 0, 0, 0, 1],
+        #                        [1, 0, 0, 0, 1],
+        #                        [1, 1, 1, 1, 1]])
         Integrated_test_image = Integrator(test_image)
         binary_test_image = convert_to_binary(Integrated_test_image)
         plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
         plt.show()
-        painter(binary_test_image, output_file='.\logs\painting-simulator-logger.txt')
+        painter(binary_test_image, output_file='./logs/painting-simulator-logger.txt')
 
     algorithm_tester()
 
