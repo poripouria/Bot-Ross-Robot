@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import math
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 
@@ -121,23 +122,24 @@ def find_spanning_trees(graph):
     Args:
         graph: Graph (dictionary)
     Returns:
-        List of spanning trees (subgraphs)
+        List of spanning trees (subgraphs) with edges
     """
     visited = set()
     spanning_trees = []
 
     def dfs(node, spanning_tree):
         visited.add(node)
-        spanning_tree.add(node)
+        spanning_tree['nodes'].add(node)
         for neighbor in graph.get(node, []):
             if neighbor not in visited:
+                spanning_tree['edges'].append((node, neighbor))
                 dfs(neighbor, spanning_tree)
 
     for node in graph:
         if node not in visited:
-            spanning_tree = set()
+            spanning_tree = {'nodes': set(), 'edges': []}
             dfs(node, spanning_tree)
-            spanning_trees.append(sorted(spanning_tree))
+            spanning_trees.append(spanning_tree)
 
     return spanning_trees
 
@@ -165,10 +167,10 @@ def main(Args=None):
         test_image = text_to_image()
         Integrated_test_image = Integrator(test_image)
         binary_test_image = convert_to_binary(Integrated_test_image)
-        painter(binary_test_image)
-
-        plt.imshow(binary_test_image)
+        plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
         plt.show()
+
+        painter(binary_test_image)
 
     algorithm_tester()
 
