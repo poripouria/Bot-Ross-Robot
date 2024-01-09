@@ -71,7 +71,79 @@ def text_to_image(txt="Hello, I am Bot Ross."):
     d.text((100,100), txt, font=font, fill=(0,0,0))
 
     return np.array(img)
-    
+
+def image_to_graph(bin_img):
+    """
+    Converts an image to the graph data structure
+    Args:
+        bin_img: Image in binary
+    Returns:
+        Graph
+    """
+    rows, cols = bin_img.shape
+    graph = {}
+
+    def is_valid(x, y):
+        return 0 <= x < rows and 0 <= y < cols
+
+    def add_edge(x1, y1, x2, y2):
+        v1 = f'v{x1}{y1}'
+        v2 = f'v{x2}{y2}'
+        if v1 not in graph:
+            graph[v1] = set()
+        graph[v1].add(v2)
+
+    for x in range(rows):
+        for y in range(cols):
+            if bin_img[x, y] == 0:  # Black pixel
+                for i in range(x - 1, x + 2):
+                    for j in range(y - 1, y + 2):
+                        if is_valid(i, j) and bin_img[i, j] == 0 and (i != x or j != y):
+                            add_edge(x, y, i, j)
+
+    return graph
+
+# Example Usage:
+import numpy as np
+
+# Assuming bin_img is a binary image represented as a NumPy array
+bin_img = np.array([[1, 1, 0, 0],
+                    [0, 0, 1, 1],
+                    [1, 1, 1, 1],
+                    [0, 0, 1, 1]])
+
+graph = image_to_graph(bin_img)
+print(graph)
+
+def find_spanning_trees(graph):
+    """
+    Finds spanning trees for each connected component in the graph
+    Args:
+        graph: Graph (dictionary)
+    Returns:
+        List of spanning trees (subgraphs)
+    """
+    visited = set()
+    spanning_trees = []
+
+    def dfs(node, spanning_tree):
+        visited.add(node)
+        spanning_tree.add(node)
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                dfs(neighbor, spanning_tree)
+
+    for node in graph:
+        if node not in visited:
+            spanning_tree = set()
+            dfs(node, spanning_tree)
+            spanning_trees.append(sorted(spanning_tree))
+
+    return spanning_trees
+
+# Example Usage:
+spanning_trees = find_spanning_trees(graph)
+print(spanning_trees)
 
 def painter(bin_img):
     """
@@ -89,13 +161,13 @@ def main(Args=None):
 
     def algorithm_tester():
 
-        test_image = cv2.imread("./assets/images/test/test-img.png")
-        # test_image = text_to_image()
+        # test_image = cv2.imread("./assets/images/test/test-img.png")
+        test_image = text_to_image()
         Integrated_test_image = Integrator(test_image)
         binary_test_image = convert_to_binary(Integrated_test_image)
         painter(binary_test_image)
 
-        plt.imshow(Integrated_test_image)
+        plt.imshow(binary_test_image)
         plt.show()
 
     algorithm_tester()
