@@ -77,7 +77,7 @@ def convert_to_binary(img):
     
     return binary_image
 
-def text_to_image(txt="Hello, I am Bot Ross."):
+def text_to_image(txt='Hello, I am Bot Ross.', fnt='./assets/fonts/Seven Segment.ttf'):
     """
     Converts text to image
     Args:
@@ -99,7 +99,7 @@ def text_to_image(txt="Hello, I am Bot Ross."):
                 txt = txt[:i] + '\n' + txt[i+1:]
     img = Image.new('RGB', (Board_Size[0], Board_Size[1]), (255, 255, 255))
     d = ImageDraw.Draw(img)
-    font = ImageFont.truetype("./assets/fonts/Seven Segment.ttf", int(Board_Size[1]/5))
+    font = ImageFont.truetype(fnt, int(Board_Size[1]/5))
     d.text((int(Board_Size[0]/100), int(Board_Size[1]/150)), txt, font=font, fill=(0,0,0))
     img = np.array(img)
 
@@ -134,8 +134,7 @@ def image_to_graph(bin_img):
                     for j in range(y - 1, y + 2):
                         if is_valid(i, j) and bin_img[i, j] == 0 and (i != x or j != y):
                             add_edge(x, y, i, j)
-
-    print(graph)
+    # print(graph)
 
     return graph
 
@@ -165,7 +164,7 @@ def find_spanning_trees(graph, by='bfs'):
                 spanning_tree = {'nodes': set(), 'edges': []}
                 dfs(node, spanning_tree)
                 spanning_trees.append(spanning_tree)
-        print(spanning_trees)
+        # print(spanning_trees)
 
     elif by == 'bfs':
         def bfs(start, spanning_tree):
@@ -188,7 +187,7 @@ def find_spanning_trees(graph, by='bfs'):
                 spanning_tree = {'nodes': set(), 'edges': []}
                 bfs(node, spanning_tree)
                 spanning_trees.append(spanning_tree)
-        print(spanning_trees)
+        # print(spanning_trees)
 
     return spanning_trees
 
@@ -202,60 +201,62 @@ def painter(bin_img, output_file='./logs/botross-simulator-logger.txt'):
         Nothing (Writes the sequence of (x, y, z) points to a file)
     """
 
-    def find_nearest_node(robot_position, nodes):
-        return min(nodes, key=lambda node: euclidean(robot_position, node))
-
     robot_position = [0, 0]
     graph = image_to_graph(bin_img)
-    spanning_trees = find_spanning_trees(graph, 'bfs')
+    b_or_d = ''
+    if len(graph) < 2500:
+        b_or_d = 'dfs'
+    else:
+        b_or_d = 'bfs'
+    print(f'Method of find_spanning_trees: {b_or_d}. (Len(graph) = {len(graph)})')
+    spanning_trees = find_spanning_trees(graph, b_or_d)
 
     with open(output_file, 'w') as file:
         for idx, spanning_tree in enumerate(spanning_trees):
             file.write(f"Painting Segment {idx + 1}:\n")
 
             nodes = spanning_tree['nodes']
-            edges = spanning_tree['edges']
-
             nodes = [list(map(int, node[1:].split('_'))) for node in nodes]
-            nearest_node = find_nearest_node(robot_position, nodes)
-
+            nearest_node = min(nodes, key=lambda node: euclidean(robot_position, node))
             x, y = nearest_node
             file.write(f"Move to ({x}, {y})\n")
             robot_position = nearest_node
 
+            edges = spanning_tree['edges']
+            # edges = sorted(edges, key=lambda edge: euclidean(robot_position, list(map(int, edge[1][1:].split('_')))))
             for edge in edges:
                 start, end = edge
                 x_start, y_start = map(int, start[1:].split('_'))
                 x_end, y_end = map(int, end[1:].split('_'))
                 file.write(f"Draw from ({x_start}, {y_start}) to ({x_end}, {y_end})\n")
-                robot_position = [x_end, y_end]
+                # robot_position = [x_end, y_end]
 
 def main(Args=None):
 
     def algorithm_tester():
 
-        # test_image = cv2.imread("./assets/images/test/test-img.png")
-        # test_image = text_to_image()
+        # test_image = cv2.imread("./assets/images/test/image.png")
+        # test_image = text_to_image('HELLO World.')
         # test_image = np.array([[1, 0, 1, 0],
         #                        [1, 0, 0, 1],
         #                        [1, 1, 1, 1],
         #                        [0, 0, 1, 1]])
-        # test_image = np.array([[0, 1, 0, 1, 0],
-        #                        [0, 1, 0, 1, 0],
-        #                        [0, 1, 0, 1, 0],
-        #                        [0, 1, 0, 1, 0],
-        #                        [0, 1, 0, 1, 0]])
+        test_image = np.array([[0, 1, 0, 1, 0],
+                               [0, 1, 0, 1, 0],
+                               [0, 1, 0, 1, 0],
+                               [0, 1, 0, 1, 0],
+                               [0, 1, 0, 1, 0]])
         # test_image = np.array([[1, 1, 1, 1, 1],
         #                        [1, 0, 0, 0, 1],
         #                        [1, 0, 0, 0, 1],
         #                        [1, 0, 0, 0, 1],
         #                        [1, 1, 1, 1, 1]])
-        test_image = np.array([[1, 1, 1, 1, 1, 1],
-                               [0, 0, 0, 0, 0, 0],
-                               [1, 1, 1, 1, 1, 1],
-                               [0, 0, 0, 0, 0, 0],
-                               [1, 1, 1, 1, 1, 1],
-                               [0, 0, 0, 0, 0, 0]])
+        # test_image = np.array([[1, 1, 1, 1, 1, 1],
+        #                        [0, 0, 0, 0, 0, 0],
+        #                        [1, 1, 1, 1, 1, 1],
+        #                        [0, 0, 0, 0, 0, 0],
+        #                        [1, 1, 1, 1, 1, 1],
+        #                        [0, 0, 0, 0, 0, 0]])
 
         Integrated_test_image = Integrator(test_image)
         binary_test_image = convert_to_binary(Integrated_test_image)
@@ -264,6 +265,8 @@ def main(Args=None):
         plt.show()
 
     algorithm_tester()
+
+    
 
 if __name__ == "__main__":
     main()
