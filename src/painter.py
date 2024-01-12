@@ -1,10 +1,11 @@
 import numpy as np
-from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import euclidean, cityblock
 import matplotlib.pyplot as plt
 import cv2
 from PIL import Image, ImageDraw, ImageFont
-from queue import Queue
-from itertools import product
+from queue import Queue, PriorityQueue
+import heapq
+from itertools import product, permutations
 
 class BotRoss():
     """
@@ -138,7 +139,7 @@ def image_to_graph(bin_img):
 
     return graph
 
-def find_spanning_trees(graph, by='bfs'):
+def find_spanning_trees(graph, by):
     """
     Finds spanning trees for each connected component in the graph
     Args:
@@ -151,12 +152,12 @@ def find_spanning_trees(graph, by='bfs'):
     spanning_trees = []
 
     if by == 'dfs':
-        def dfs(node, spanning_tree):
-            visited.add(node)
-            spanning_tree['nodes'].add(node)
-            for neighbor in sorted(graph.get(node, [])):
+        def dfs(start, spanning_tree):
+            visited.add(start)
+            spanning_tree['nodes'].add(start)
+            for neighbor in sorted(graph.get(start, [])):
                 if neighbor not in visited:
-                    spanning_tree['edges'].append((node, neighbor))
+                    spanning_tree['edges'].append((start, neighbor))
                     dfs(neighbor, spanning_tree)
 
         for node in graph:
@@ -189,6 +190,53 @@ def find_spanning_trees(graph, by='bfs'):
                 spanning_trees.append(spanning_tree)
         # print(spanning_trees)
 
+    elif by == 'tsp':
+        def tsp(start, spanning_tree):
+            stack = [start]
+            while stack:
+                node = stack.pop()
+                if node not in visited:
+                    visited.add(node)
+                    spanning_tree['nodes'].add(node)
+                    for neighbor in graph.get(node, []):
+                        if neighbor not in visited:
+                            stack.append(neighbor)
+                            spanning_tree['edges'].append((node, neighbor))
+
+        for node in graph:
+            if node not in visited:
+                spanning_tree = {'nodes': set(), 'edges': []}
+                tsp(node, spanning_tree)
+                spanning_trees.append(spanning_tree)
+        # print(spanning_trees)
+        
+    elif by == 'astar':
+        def astar(start, spanning_tree):
+            priority_queue = [(0, start)]
+
+            while priority_queue:
+                _, current_node = heapq.heappop(priority_queue)
+                if current_node not in spanning_tree['nodes']:
+                    visited.add(current_node)
+                    spanning_tree['nodes'].add(current_node)
+
+                    neighbors = [(neighbor, cityblock(list(map(int, current_node[1:].split('_'))), list(map(int, neighbor[1:].split('_'))))) for neighbor in graph.get(current_node, [])]
+                    
+                    for neighbor, distance in neighbors:
+                        if neighbor not in spanning_tree['nodes']:
+                            heapq.heappush(priority_queue, (distance, neighbor))
+                            spanning_tree['edges'].append((current_node, neighbor))
+
+        for node in graph:
+            if node not in visited:
+                spanning_tree = {'nodes': set(), 'edges': []}
+                astar(node, spanning_tree)
+                spanning_trees.append(spanning_tree)
+        # print(spanning_trees)
+
+    else:
+        raise ValueError('Invalid method of find_spanning_trees')
+
     return spanning_trees
 
 def painter(bin_img, output_file='./logs/botross-simulator-logger.txt'):
@@ -201,15 +249,11 @@ def painter(bin_img, output_file='./logs/botross-simulator-logger.txt'):
         Nothing (Writes the sequence of (x, y, z) points to a file)
     """
 
-    robot_position = [0, 0]
     graph = image_to_graph(bin_img)
-    b_or_d = ''
-    if len(graph) < 2500:
-        b_or_d = 'dfs'
-    else:
-        b_or_d = 'bfs'
-    print(f'Method of find_spanning_trees: {b_or_d}. (Len(graph) = {len(graph)})')
-    spanning_trees = find_spanning_trees(graph, b_or_d)
+
+    spanning_trees = find_spanning_trees(graph, 'dfs')
+
+    robot_position = [0, 0]
 
     with open(output_file, 'w') as file:
         for idx, spanning_tree in enumerate(spanning_trees):
@@ -223,7 +267,6 @@ def painter(bin_img, output_file='./logs/botross-simulator-logger.txt'):
             robot_position = nearest_node
 
             edges = spanning_tree['edges']
-            # edges = sorted(edges, key=lambda edge: euclidean(robot_position, list(map(int, edge[1][1:].split('_')))))
             for edge in edges:
                 start, end = edge
                 x_start, y_start = map(int, start[1:].split('_'))
@@ -241,16 +284,16 @@ def main(Args=None):
         #                        [1, 0, 0, 1],
         #                        [1, 1, 1, 1],
         #                        [0, 0, 1, 1]])
-        test_image = np.array([[0, 1, 0, 1, 0],
-                               [0, 1, 0, 1, 0],
-                               [0, 1, 0, 1, 0],
-                               [0, 1, 0, 1, 0],
-                               [0, 1, 0, 1, 0]])
-        # test_image = np.array([[1, 1, 1, 1, 1],
-        #                        [1, 0, 0, 0, 1],
-        #                        [1, 0, 0, 0, 1],
-        #                        [1, 0, 0, 0, 1],
-        #                        [1, 1, 1, 1, 1]])
+        # test_image = np.array([[0, 1, 0, 1, 0],
+        #                        [0, 1, 0, 1, 0],
+        #                        [0, 1, 0, 1, 0],
+        #                        [0, 1, 0, 1, 0],
+        #                        [0, 1, 0, 1, 0]])
+        test_image = np.array([[1, 1, 1, 1, 1],
+                               [1, 0, 0, 0, 1],
+                               [1, 0, 0, 0, 1],
+                               [1, 0, 0, 0, 1],
+                               [1, 1, 1, 1, 1]])
         # test_image = np.array([[1, 1, 1, 1, 1, 1],
         #                        [0, 0, 0, 0, 0, 0],
         #                        [1, 1, 1, 1, 1, 1],
