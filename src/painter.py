@@ -3,6 +3,8 @@ from scipy.spatial.distance import euclidean
 import matplotlib.pyplot as plt
 import cv2
 from PIL import Image, ImageDraw, ImageFont
+from queue import Queue
+from itertools import product
 
 class BotRoss():
     """
@@ -39,6 +41,9 @@ def Integrator(input_image, output_size=Board_Size):
         raise ValueError("Image not found")
     else:
         raise ValueError("Unsupported image input type")
+
+    if image.shape <= (100, 100):
+        return image
 
     print(f'Image size before: {image.shape}')
     # Fit to Board_Size
@@ -128,11 +133,12 @@ def image_to_graph(bin_img):
                     for j in range(y - 1, y + 2):
                         if is_valid(i, j) and bin_img[i, j] == 0 and (i != x or j != y):
                             add_edge(x, y, i, j)
+
     print(graph)
 
     return graph
 
-def find_spanning_trees(graph):
+def find_spanning_trees(graph, by='bfs'):
     """
     Finds spanning trees for each connected component in the graph
     Args:
@@ -144,20 +150,44 @@ def find_spanning_trees(graph):
     visited = set()
     spanning_trees = []
 
-    def dfs(node, spanning_tree):
-        visited.add(node)
-        spanning_tree['nodes'].add(node)
-        for neighbor in graph.get(node, []):
-            if neighbor not in visited:
-                spanning_tree['edges'].append((node, neighbor))
-                dfs(neighbor, spanning_tree)
+    if by == 'dfs':
+        def dfs(node, spanning_tree):
+            visited.add(node)
+            spanning_tree['nodes'].add(node)
+            for neighbor in sorted(graph.get(node, [])):
+                if neighbor not in visited:
+                    spanning_tree['edges'].append((node, neighbor))
+                    dfs(neighbor, spanning_tree)
 
-    for node in graph:
-        if node not in visited:
-            spanning_tree = {'nodes': set(), 'edges': []}
-            dfs(node, spanning_tree)
-            spanning_trees.append(spanning_tree)
-    print(spanning_trees)
+        for node in graph:
+            if node not in visited:
+                spanning_tree = {'nodes': set(), 'edges': []}
+                dfs(node, spanning_tree)
+                spanning_trees.append(spanning_tree)
+        print(spanning_trees)
+
+    elif by == 'bfs':
+        def bfs(start, spanning_tree):
+            visited.add(start)
+            queue = Queue()
+            queue.put(start)
+
+            while not queue.empty():
+                current_node = queue.get()
+                spanning_tree['nodes'].add(current_node)
+
+                for neighbor in graph.get(current_node, []):
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        queue.put(neighbor)
+                        spanning_tree['edges'].append((current_node, neighbor))
+        
+        for node in graph:
+            if node not in visited:
+                spanning_tree = {'nodes': set(), 'edges': []}
+                bfs(node, spanning_tree)
+                spanning_trees.append(spanning_tree)
+        print(spanning_trees)
 
     return spanning_trees
 
@@ -176,7 +206,7 @@ def painter(bin_img, output_file='botross-painting-simulator.txt'):
 
     robot_position = [0, 0]
     graph = image_to_graph(bin_img)
-    spanning_trees = find_spanning_trees(graph)
+    spanning_trees = find_spanning_trees(graph, 'bfs')
 
     with open(output_file, 'w') as file:
         for idx, spanning_tree in enumerate(spanning_trees):
@@ -187,10 +217,9 @@ def painter(bin_img, output_file='botross-painting-simulator.txt'):
 
             nodes = [list(map(int, node[1:].split('_'))) for node in nodes]
             nearest_node = find_nearest_node(robot_position, nodes)
-            x, y = nearest_node
-            z = 0 if bin_img[x, y] == 0 else 1
-            file.write(f"Move to ({x}, {y}, {z})\n")
 
+            x, y = nearest_node
+            file.write(f"Move to ({x}, {y})\n")
             robot_position = nearest_node
 
             for edge in edges:
@@ -198,12 +227,14 @@ def painter(bin_img, output_file='botross-painting-simulator.txt'):
                 x_start, y_start = map(int, start[1:].split('_'))
                 x_end, y_end = map(int, end[1:].split('_'))
                 file.write(f"Draw from ({x_start}, {y_start}) to ({x_end}, {y_end})\n")
+                robot_position = [x_end, y_end]
 
 def main(Args=None):
 
     def algorithm_tester():
+        
         # test_image = cv2.imread("./assets/images/test/test-img.png")
-        test_image = text_to_image()
+        # test_image = text_to_image()
         # test_image = np.array([[1, 0, 1, 0],
         #                        [1, 0, 0, 1],
         #                        [1, 1, 1, 1],
@@ -218,11 +249,18 @@ def main(Args=None):
         #                        [1, 0, 0, 0, 1],
         #                        [1, 0, 0, 0, 1],
         #                        [1, 1, 1, 1, 1]])
+        test_image = np.array([[1, 1, 1, 1, 1, 1],
+                               [0, 0, 0, 0, 0, 0],
+                               [1, 1, 1, 1, 1, 1],
+                               [0, 0, 0, 0, 0, 0],
+                               [1, 1, 1, 1, 1, 1],
+                               [0, 0, 0, 0, 0, 0]])
+
         Integrated_test_image = Integrator(test_image)
         binary_test_image = convert_to_binary(Integrated_test_image)
+        painter(binary_test_image, output_file='./logs/painting-simulator-logger.txt')
         plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
         plt.show()
-        painter(binary_test_image, output_file='./logs/painting-simulator-logger.txt')
 
     algorithm_tester()
 
