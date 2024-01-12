@@ -42,7 +42,8 @@ def Integrator(input_image, output_size=Board_Size):
     else:
         raise ValueError("Unsupported image input type")
 
-    if image.shape <= (100, 100):
+    threshold = (100, 100)
+    if image.shape <= threshold:
         return image
 
     print(f'Image size before: {image.shape}')
@@ -191,7 +192,7 @@ def find_spanning_trees(graph, by='bfs'):
 
     return spanning_trees
 
-def painter(bin_img, output_file='botross-painting-simulator.txt'):
+def painter(bin_img, output_file='./logs/botross-simulator-logger.txt'):
     """
     Paints the image on a whiteboard using a simulated cable-driven painter robot
     Args:
@@ -232,7 +233,7 @@ def painter(bin_img, output_file='botross-painting-simulator.txt'):
 def main(Args=None):
 
     def algorithm_tester():
-        
+
         # test_image = cv2.imread("./assets/images/test/test-img.png")
         # test_image = text_to_image()
         # test_image = np.array([[1, 0, 1, 0],
