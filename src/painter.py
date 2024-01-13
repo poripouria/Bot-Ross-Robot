@@ -272,10 +272,15 @@ def main(Args=None):
     def algorithm_tester():
         # test_image = cv2.imread("./assets/images/test/image.png")
         # test_image = text_to_image()
-        test_image = np.array([[0, 0, 1, 0, 1],
-                               [0, 0, 1, 1, 0],
+        # test_image = np.array([[0, 0, 1, 0, 1],
+        #                        [0, 0, 1, 1, 0],
+        #                        [1, 0, 1, 1, 1],
+        #                        [0, 1, 1, 1, 1],
+        #                        [1, 1, 1, 1, 0]])
+        test_image = np.array([[0, 1, 1, 1, 1],
                                [1, 0, 1, 1, 1],
-                               [0, 1, 1, 1, 1],
+                               [1, 1, 0, 1, 1],
+                               [1, 1, 1, 0, 1],
                                [1, 1, 1, 1, 0]])
         # test_image = np.array([[0, 1, 0, 1, 0],
         #                        [0, 1, 0, 1, 0],
