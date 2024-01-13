@@ -11,18 +11,21 @@ class BotRoss():
     """
     Bot Ross Object
     """
+
     def __init__(self):
         pass
 
 Board_Size = [300, 200] # 30cm × 20cm (In BRPixel format)
 
-def Integrator(input_image, output_size=Board_Size):
+def Integrator(input_image, output_size, method='fit'):
     """
     Integrates the image
         Image types and sizesare different.
         This function receives different types of image and return unique type and size.
     Args:
         input_image: Image in grayscale
+        output_size: Size of the board
+        method: Fit or Fill for resizing
     Returns:
         Integrated image
     """
@@ -48,19 +51,21 @@ def Integrator(input_image, output_size=Board_Size):
         return image
 
     print(f'Image size before: {image.shape}')
-    # Fit to Board_Size
-    if image.shape[0] >= output_size[1] and image.shape[1] <= output_size[0]:
-        scale = output_size[1] / image.shape[0]
-    elif image.shape[1] >= output_size[0] and image.shape[0] <= output_size[1]:
-        scale = output_size[0] / image.shape[1]
-    elif image.shape[1] <= output_size[0] and image.shape[0] <= output_size[1]:
-        scale = min(output_size[0] / image.shape[1], output_size[1] / image.shape[0])
+    if method == 'fit':
+        if image.shape[0] >= output_size[1] and image.shape[1] <= output_size[0]:
+            scale = output_size[1] / image.shape[0]
+        elif image.shape[1] >= output_size[0] and image.shape[0] <= output_size[1]:
+            scale = output_size[0] / image.shape[1]
+        elif image.shape[1] <= output_size[0] and image.shape[0] <= output_size[1]:
+            scale = min(output_size[0] / image.shape[1], output_size[1] / image.shape[0])
+        else:
+            scale = min(image.shape[0] / output_size[1], image.shape[1] / output_size[0])
+        print(f'Scaling Ratio: {scale}')
+        final_image = cv2.resize(image, None, fx=scale, fy=scale, interpolation= cv2.INTER_NEAREST) 
+    elif method == 'fill':
+        final_image = cv2.resize(image, (output_size[0], output_size[1]), fx=1, fy=1, interpolation= cv2.INTER_NEAREST) 
     else:
-        scale = min(image.shape[0] / output_size[1], image.shape[1] / output_size[0])
-    print(f'Scaling Ratio: {scale}')
-    final_image = cv2.resize(image, None, fx=scale, fy=scale, interpolation= cv2.INTER_NEAREST) 
-    # Fill in Board_Size
-    # final_image = cv2.resize(image, (output_size[0], output_size[1]), fx=1, fy=1, interpolation= cv2.INTER_NEAREST) 
+        raise ValueError("Invalid method for resizing Image")
     print(f'Image size AFTER: {final_image.shape}') 
     return final_image
 
@@ -68,7 +73,7 @@ def convert_to_binary(img):
     """
     Converts the image to binary
     Args:
-        img: Image in grayscale
+        img: Image
     Returns:
         Binary image
     """
@@ -78,18 +83,19 @@ def convert_to_binary(img):
     
     return binary_image
 
-def text_to_image(txt='Hello, I am Bot Ross.', fnt='./assets/fonts/Seven Segment.ttf'):
+def text_to_image(txt="Hello, I am Bot Ross.", fnt='./assets/fonts/Seven Segment.ttf'):
     """
     Converts text to image
     Args:
-        txt: Text
+        txt: Text to be converted
+        fnt: Font of Text
     Returns:
         Image
     """
 
     if 60 < len(txt):
         print('Text is too long')
-        txt = txt[:60]
+        txt = txt[:60] = " ..."
     if 15 < len(txt) <= 30:
         for i in range(15, len(txt)):
             if txt[i] == ' ':
@@ -115,12 +121,6 @@ def image_to_graph(bin_img):
         Graph
     """
 
-    rows, cols = bin_img.shape
-    graph = {}
-
-    def is_valid(x, y):
-        return 0 <= x < rows and 0 <= y < cols
-
     def add_edge(x1, y1, x2, y2):
         v1 = f'v{x1}_{y1}'
         v2 = f'v{x2}_{y2}'
@@ -128,14 +128,19 @@ def image_to_graph(bin_img):
             graph[v1] = set()
         graph[v1].add(v2)
 
+    rows, cols = bin_img.shape
+    graph = {}
+
     for x in range(rows):
         for y in range(cols):
             if bin_img[x, y] == 0:
                 for i in range(x - 1, x + 2):
                     for j in range(y - 1, y + 2):
-                        if is_valid(i, j) and bin_img[i, j] == 0 and (i != x or j != y):
-                            add_edge(x, y, i, j)
-    # print(graph)
+                        if 0 <= i < rows and 0 <= j < cols:
+                            if bin_img[i, j] == 0 and (i != x or j != y):
+                                add_edge(x, y, i, j)
+    with open('./logs/output-graph-logger.txt', 'w') as file:
+        file.write(str(graph))
 
     return graph
 
@@ -144,116 +149,90 @@ def find_spanning_trees(graph, by):
     Finds spanning trees for each connected component in the graph
     Args:
         graph: Graph (dictionary)
+        by: Method to find spanning trees
     Returns:
         List of spanning trees (subgraphs) with edges
     """
 
+    def dfs(start, spanning_tree):
+        visited.add(start)
+        spanning_tree['nodes'].add(start)
+        for neighbor in sorted(graph.get(start, [])):
+            if neighbor not in visited:
+                spanning_tree['edges'].append((start, neighbor))
+                dfs(neighbor, spanning_tree)
+
+    def bfs(start, spanning_tree):
+        visited.add(start)
+        queue = Queue()
+        queue.put(start)
+        while not queue.empty():
+            current_node = queue.get()
+            spanning_tree['nodes'].add(current_node)
+            for neighbor in graph.get(current_node, []):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.put(neighbor)
+                    spanning_tree['edges'].append((current_node, neighbor))
+
+    def tsp(start, spanning_tree):
+        stack = [start]
+        while stack:
+            node = stack.pop()
+            if node not in visited:
+                visited.add(node)
+                spanning_tree['nodes'].add(node)
+                for neighbor in graph.get(node, []):
+                    if neighbor not in visited:
+                        stack.append(neighbor)
+                        spanning_tree['edges'].append((node, neighbor))
+
+    def astar(start, spanning_tree):
+        priority_queue = [(0, start)]
+        while priority_queue:
+            _, current_node = heapq.heappop(priority_queue)
+            if current_node not in spanning_tree['nodes']:
+                visited.add(current_node)
+                spanning_tree['nodes'].add(current_node)
+                neighbors = [(neighbor, cityblock(list(map(int, current_node[1:].split('_'))), list(map(int, neighbor[1:].split('_'))))) for neighbor in graph.get(current_node, [])]
+                for neighbor, distance in neighbors:
+                    if neighbor not in spanning_tree['nodes']:
+                        heapq.heappush(priority_queue, (distance, neighbor))
+                        spanning_tree['edges'].append((current_node, neighbor))
+
+    methods = {'dfs': dfs,
+               'bfs': bfs,
+               'tsp': tsp,
+               'astar': astar}
     visited = set()
     spanning_trees = []
-
-    if by == 'dfs':
-        def dfs(start, spanning_tree):
-            visited.add(start)
-            spanning_tree['nodes'].add(start)
-            for neighbor in sorted(graph.get(start, [])):
-                if neighbor not in visited:
-                    spanning_tree['edges'].append((start, neighbor))
-                    dfs(neighbor, spanning_tree)
-
-        for node in graph:
-            if node not in visited:
-                spanning_tree = {'nodes': set(), 'edges': []}
-                dfs(node, spanning_tree)
-                spanning_trees.append(spanning_tree)
-        # print(spanning_trees)
-
-    elif by == 'bfs':
-        def bfs(start, spanning_tree):
-            visited.add(start)
-            queue = Queue()
-            queue.put(start)
-
-            while not queue.empty():
-                current_node = queue.get()
-                spanning_tree['nodes'].add(current_node)
-
-                for neighbor in graph.get(current_node, []):
-                    if neighbor not in visited:
-                        visited.add(neighbor)
-                        queue.put(neighbor)
-                        spanning_tree['edges'].append((current_node, neighbor))
-        
-        for node in graph:
-            if node not in visited:
-                spanning_tree = {'nodes': set(), 'edges': []}
-                bfs(node, spanning_tree)
-                spanning_trees.append(spanning_tree)
-        # print(spanning_trees)
-
-    elif by == 'tsp':
-        def tsp(start, spanning_tree):
-            stack = [start]
-            while stack:
-                node = stack.pop()
-                if node not in visited:
-                    visited.add(node)
-                    spanning_tree['nodes'].add(node)
-                    for neighbor in graph.get(node, []):
-                        if neighbor not in visited:
-                            stack.append(neighbor)
-                            spanning_tree['edges'].append((node, neighbor))
-
-        for node in graph:
-            if node not in visited:
-                spanning_tree = {'nodes': set(), 'edges': []}
-                tsp(node, spanning_tree)
-                spanning_trees.append(spanning_tree)
-        # print(spanning_trees)
-        
-    elif by == 'astar':
-        def astar(start, spanning_tree):
-            priority_queue = [(0, start)]
-
-            while priority_queue:
-                _, current_node = heapq.heappop(priority_queue)
-                if current_node not in spanning_tree['nodes']:
-                    visited.add(current_node)
-                    spanning_tree['nodes'].add(current_node)
-
-                    neighbors = [(neighbor, cityblock(list(map(int, current_node[1:].split('_'))), list(map(int, neighbor[1:].split('_'))))) for neighbor in graph.get(current_node, [])]
-                    
-                    for neighbor, distance in neighbors:
-                        if neighbor not in spanning_tree['nodes']:
-                            heapq.heappush(priority_queue, (distance, neighbor))
-                            spanning_tree['edges'].append((current_node, neighbor))
-
-        for node in graph:
-            if node not in visited:
-                spanning_tree = {'nodes': set(), 'edges': []}
-                astar(node, spanning_tree)
-                spanning_trees.append(spanning_tree)
-        # print(spanning_trees)
-
-    else:
-        raise ValueError('Invalid method of find_spanning_trees')
+    for node in graph:
+        if node not in visited:
+            spanning_tree = {'nodes': set(), 'edges': []}
+            try:
+                method = methods[by]
+                method(node, spanning_tree)
+            except KeyError:
+                raise ValueError('Invalid method of find_spanning_trees')
+            spanning_trees.append(spanning_tree)
+    with open('./logs/output-graph-st-logger.txt', 'w') as file:
+        file.write(str(spanning_trees))
 
     return spanning_trees
 
-def painter(bin_img, output_file='./logs/botross-simulator-logger.txt'):
+def painter(bin_img):
     """
     Paints the image on a whiteboard using a simulated cable-driven painter robot
     Args:
         bin_img: Image in binary
-        output_file: File to save the simulation output
     Returns:
-        Nothing (Writes the sequence of (x, y, z) points to a file)
+        Nothing (Draw and Writes the sequence of (x, y, z) points to a file)
     """
 
     graph = image_to_graph(bin_img)
-
     spanning_trees = find_spanning_trees(graph, 'dfs')
-
     robot_position = [0, 0]
+    output_file='./logs/painting-simulator-logger.txt'
 
     with open(output_file, 'w') as file:
         for idx, spanning_tree in enumerate(spanning_trees):
@@ -261,7 +240,7 @@ def painter(bin_img, output_file='./logs/botross-simulator-logger.txt'):
 
             nodes = spanning_tree['nodes']
             nodes = [list(map(int, node[1:].split('_'))) for node in nodes]
-            nearest_node = min(nodes, key=lambda node: euclidean(robot_position, node))
+            nearest_node = min(nodes, key=lambda node: cityblock(robot_position, node))
             x, y = nearest_node
             file.write(f"Move to ({x}, {y})\n")
             robot_position = nearest_node
@@ -277,9 +256,8 @@ def painter(bin_img, output_file='./logs/botross-simulator-logger.txt'):
 def main(Args=None):
 
     def algorithm_tester():
-
         # test_image = cv2.imread("./assets/images/test/image.png")
-        # test_image = text_to_image('HELLO World.')
+        # test_image = text_to_image()
         # test_image = np.array([[1, 0, 1, 0],
         #                        [1, 0, 0, 1],
         #                        [1, 1, 1, 1],
@@ -289,27 +267,25 @@ def main(Args=None):
         #                        [0, 1, 0, 1, 0],
         #                        [0, 1, 0, 1, 0],
         #                        [0, 1, 0, 1, 0]])
-        test_image = np.array([[1, 1, 1, 1, 1],
-                               [1, 0, 0, 0, 1],
-                               [1, 0, 0, 0, 1],
-                               [1, 0, 0, 0, 1],
-                               [1, 1, 1, 1, 1]])
-        # test_image = np.array([[1, 1, 1, 1, 1, 1],
-        #                        [0, 0, 0, 0, 0, 0],
-        #                        [1, 1, 1, 1, 1, 1],
-        #                        [0, 0, 0, 0, 0, 0],
-        #                        [1, 1, 1, 1, 1, 1],
-        #                        [0, 0, 0, 0, 0, 0]])
-
-        Integrated_test_image = Integrator(test_image)
+        # test_image = np.array([[1, 1, 1, 1, 1],
+        #                        [1, 0, 0, 0, 1],
+        #                        [1, 0, 0, 0, 1],
+        #                        [1, 0, 0, 0, 1],
+        #                        [1, 1, 1, 1, 1]])
+        test_image = np.array([[1, 1, 1, 1, 1, 1],
+                               [0, 0, 0, 0, 0, 0],
+                               [1, 1, 1, 1, 1, 1],
+                               [0, 0, 0, 0, 0, 0],
+                               [1, 1, 0, 1, 1, 1],
+                               [0, 0, 0, 0, 0, 0]])
+        Integrated_test_image = Integrator(test_image, Board_Size, method='fit')
         binary_test_image = convert_to_binary(Integrated_test_image)
-        painter(binary_test_image, output_file='./logs/painting-simulator-logger.txt')
+
+        painter(binary_test_image)
         plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
         plt.show()
 
     algorithm_tester()
-
-    
 
 if __name__ == "__main__":
     main()
