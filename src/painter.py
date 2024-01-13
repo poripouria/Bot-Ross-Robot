@@ -121,12 +121,20 @@ def image_to_graph(bin_img):
         Graph
     """
 
+    def add_node(x, y):
+        v = f'v{x}_{y}'
+        if v not in graph:
+            graph[v] = set()
+
     def add_edge(x1, y1, x2, y2):
         v1 = f'v{x1}_{y1}'
         v2 = f'v{x2}_{y2}'
         if v1 not in graph:
             graph[v1] = set()
+        if v2 not in graph:
+            graph[v2] = set()
         graph[v1].add(v2)
+        graph[v2].add(v1)
 
     rows, cols = bin_img.shape
     graph = {}
@@ -134,11 +142,14 @@ def image_to_graph(bin_img):
     for x in range(rows):
         for y in range(cols):
             if bin_img[x, y] == 0:
+                add_node(x, y)
                 for i in range(x - 1, x + 2):
                     for j in range(y - 1, y + 2):
-                        if 0 <= i < rows and 0 <= j < cols:
-                            if bin_img[i, j] == 0 and (i != x or j != y):
+                        if 0 <= i < rows and 0 <= j < cols and bin_img[i, j] == 0:
+                            if i != x or j != y:
+                                add_node(i, j)
                                 add_edge(x, y, i, j)
+
     with open('./logs/output-graph-logger.txt', 'w') as file:
         file.write(str(graph))
 
@@ -231,10 +242,10 @@ def painter(bin_img):
 
     graph = image_to_graph(bin_img)
     spanning_trees = find_spanning_trees(graph, 'dfs')
-    robot_position = [0, 0]
-    output_file='./logs/painting-simulator-logger.txt'
+    init_pos = [0, 0]
 
-    with open(output_file, 'w') as file:
+    with open('./logs/painting-simulator-logger.txt', 'w') as file:
+        robot_position = init_pos
         for idx, spanning_tree in enumerate(spanning_trees):
             file.write(f"Painting Segment {idx + 1}:\n")
 
@@ -242,26 +253,30 @@ def painter(bin_img):
             nodes = [list(map(int, node[1:].split('_'))) for node in nodes]
             nearest_node = min(nodes, key=lambda node: cityblock(robot_position, node))
             x, y = nearest_node
-            file.write(f"Move to ({x}, {y})\n")
+            file.write(f"Mv to ({x}, {y})\n")
             robot_position = nearest_node
 
             edges = spanning_tree['edges']
+            if not edges:
+                file.write(f"Dr fr ({x}, {y}) to ({x}, {y})\n")
             for edge in edges:
-                start, end = edge
-                x_start, y_start = map(int, start[1:].split('_'))
-                x_end, y_end = map(int, end[1:].split('_'))
-                file.write(f"Draw from ({x_start}, {y_start}) to ({x_end}, {y_end})\n")
-                # robot_position = [x_end, y_end]
+                x_start, y_start = map(int, edge[0][1:].split('_'))
+                x_end, y_end = map(int, edge[1][1:].split('_'))
+                if robot_position != [x_start, y_start]:
+                    file.write(f"Mv to ({x_start}, {y_start})\n")
+                file.write(f"Dr fr ({x_start}, {y_start}) to ({x_end}, {y_end})\n")
+                robot_position = [x_end, y_end]
 
 def main(Args=None):
 
     def algorithm_tester():
         # test_image = cv2.imread("./assets/images/test/image.png")
         # test_image = text_to_image()
-        # test_image = np.array([[1, 0, 1, 0],
-        #                        [1, 0, 0, 1],
-        #                        [1, 1, 1, 1],
-        #                        [0, 0, 1, 1]])
+        test_image = np.array([[0, 0, 1, 0, 1],
+                               [0, 0, 1, 1, 0],
+                               [1, 0, 1, 1, 1],
+                               [0, 1, 1, 1, 1],
+                               [1, 1, 1, 1, 0]])
         # test_image = np.array([[0, 1, 0, 1, 0],
         #                        [0, 1, 0, 1, 0],
         #                        [0, 1, 0, 1, 0],
@@ -272,12 +287,13 @@ def main(Args=None):
         #                        [1, 0, 0, 0, 1],
         #                        [1, 0, 0, 0, 1],
         #                        [1, 1, 1, 1, 1]])
-        test_image = np.array([[1, 1, 1, 1, 1, 1],
-                               [0, 0, 0, 0, 0, 0],
-                               [1, 1, 1, 1, 1, 1],
-                               [0, 0, 0, 0, 0, 0],
-                               [1, 1, 0, 1, 1, 1],
-                               [0, 0, 0, 0, 0, 0]])
+        # test_image = np.array([[0, 0, 0, 0, 1, 1],
+        #                        [1, 0, 0, 0, 1, 1],
+        #                        [0, 0, 0, 0, 0, 0],
+        #                        [1, 1, 1, 1, 1, 1],
+        #                        [0, 0, 0, 0, 0, 0],
+        #                        [1, 1, 0, 1, 1, 1],
+        #                        [0, 0, 0, 0, 0, 0]])
         Integrated_test_image = Integrator(test_image, Board_Size, method='fit')
         binary_test_image = convert_to_binary(Integrated_test_image)
 
