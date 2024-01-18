@@ -167,11 +167,23 @@ def find_spanning_trees(graph, by):
 
     def dfs(start, spanning_tree):
         visited.add(start)
+        stack = [start]
+        while stack:
+            current_node = stack.pop()
+            spanning_tree['nodes'].add(current_node)
+            for neighbor in sorted(graph.get(current_node, [])):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    stack.append(neighbor)
+                    spanning_tree['edges'].append((current_node, neighbor))
+
+    def recursive_dfs(start, spanning_tree):
+        visited.add(start)
         spanning_tree['nodes'].add(start)
         for neighbor in sorted(graph.get(start, [])):
             if neighbor not in visited:
                 spanning_tree['edges'].append((start, neighbor))
-                dfs(neighbor, spanning_tree)
+                recursive_dfs(neighbor, spanning_tree)
 
     def bfs(start, spanning_tree):
         visited.add(start)
@@ -212,6 +224,7 @@ def find_spanning_trees(graph, by):
                         spanning_tree['edges'].append((current_node, neighbor))
 
     methods = {'dfs': dfs,
+               'recursive_dfs': recursive_dfs,
                'bfs': bfs,
                'tsp': tsp,
                'astar': astar}
