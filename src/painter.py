@@ -15,7 +15,7 @@ class BotRoss():
     def __init__(self):
         pass
 
-Board_Size = [300, 200] # 30cm × 20cm (In BRPixel format)
+Board_Size = [200, 200] # 20cm × 20cm (In BRPixel format)
 
 def Integrator(input_image, output_size, method='fit'):
     """
@@ -95,7 +95,7 @@ def text_to_image(txt="Hello, I am Bot Ross.", fnt='./assets/fonts/Seven Segment
 
     if 60 < len(txt):
         print('Text is too long')
-        txt = txt[:60] = " ..."
+        txt = txt[:60] + " ..."
     if 15 < len(txt) <= 30:
         for i in range(15, len(txt)):
             if txt[i] == ' ':
@@ -166,16 +166,24 @@ def find_spanning_trees(graph, by):
     """
 
     def dfs(start, spanning_tree):
-        visited.add(start)
         stack = [start]
         while stack:
             current_node = stack.pop()
-            spanning_tree['nodes'].add(current_node)
-            for neighbor in sorted(graph.get(current_node, [])):
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    stack.append(neighbor)
-                    spanning_tree['edges'].append((current_node, neighbor))
+            if current_node not in visited:
+                visited.add(current_node)
+                spanning_tree['nodes'].add(current_node)
+                for neighbor in sorted(graph.get(current_node, [])):
+                    if neighbor not in visited:
+                        spanning_tree['edges'].append((current_node, neighbor))
+                        stack.append(neighbor)
+
+            # current_node = stack.pop()
+            # spanning_tree['nodes'].add(current_node)
+            # for neighbor in sorted(graph.get(current_node, [])):
+            #     if neighbor not in visited:
+            #         visited.add(neighbor)
+            #         stack.append(neighbor)
+            #         spanning_tree['edges'].append((current_node, neighbor))
 
     def recursive_dfs(start, spanning_tree):
         visited.add(start)
@@ -254,7 +262,7 @@ def painter(bin_img):
     """
 
     graph = image_to_graph(bin_img)
-    spanning_trees = find_spanning_trees(graph, 'dfs')
+    spanning_trees = find_spanning_trees(graph, 'recursive_dfs')
     init_pos = [0, 0]
 
     with open('./logs/painting-simulator-logger.txt', 'w') as file:
@@ -284,17 +292,17 @@ def main(Args=None):
 
     def algorithm_tester():
         # test_image = cv2.imread("./assets/images/test/image.png")
-        # test_image = text_to_image()
+        # test_image = text_to_image("Pouria")
         # test_image = np.array([[0, 0, 1, 0, 1],
         #                        [0, 0, 1, 1, 0],
         #                        [1, 0, 1, 1, 1],
         #                        [0, 1, 1, 1, 1],
         #                        [1, 1, 1, 1, 0]])
-        test_image = np.array([[0, 1, 1, 1, 1],
-                               [1, 0, 1, 1, 1],
-                               [1, 1, 0, 1, 1],
-                               [1, 1, 1, 0, 1],
-                               [1, 1, 1, 1, 0]])
+        # test_image = np.array([[0, 1, 1, 1, 1],
+        #                        [1, 0, 1, 1, 1],
+        #                        [1, 1, 0, 1, 1],
+        #                        [1, 1, 1, 0, 1],
+        #                        [1, 1, 1, 1, 0]])
         # test_image = np.array([[0, 1, 0, 1, 0],
         #                        [0, 1, 0, 1, 0],
         #                        [0, 1, 0, 1, 0],
@@ -302,7 +310,7 @@ def main(Args=None):
         #                        [0, 1, 0, 1, 0]])
         # test_image = np.array([[1, 1, 1, 1, 1],
         #                        [1, 0, 0, 0, 1],
-        #                        [1, 0, 0, 0, 1],
+        #                        [1, 0, 1, 0, 1],
         #                        [1, 0, 0, 0, 1],
         #                        [1, 1, 1, 1, 1]])
         # test_image = np.array([[0, 0, 0, 0, 1, 1],
@@ -312,6 +320,23 @@ def main(Args=None):
         #                        [0, 0, 0, 0, 0, 0],
         #                        [1, 1, 0, 1, 1, 1],
         #                        [0, 0, 0, 0, 0, 0]])
+        # test_image = np.array([[1, 1, 1, 1, 1, 1],
+        #                        [1, 0, 0, 0, 0, 1],
+        #                        [1, 0, 1, 1, 0, 1],
+        #                        [1, 0, 0, 0, 0, 1],
+        #                        [1, 0, 0, 1, 1, 1],
+        #                        [1, 0, 1, 0, 1, 1],
+        #                        [1, 0, 1, 1, 0, 1]])
+        test_image = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                               [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
+                               [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
+                               [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+                               [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+                               [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+                               [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+                               [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
+                               [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
+                               [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
         Integrated_test_image = Integrator(test_image, Board_Size, method='fit')
         binary_test_image = convert_to_binary(Integrated_test_image)
 
