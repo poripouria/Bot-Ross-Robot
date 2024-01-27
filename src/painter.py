@@ -327,16 +327,31 @@ def main(Args=None):
         #                        [1, 0, 0, 1, 1, 1],
         #                        [1, 0, 1, 0, 1, 1],
         #                        [1, 0, 1, 1, 0, 1]])
-        test_image = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                               [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
-                               [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
-                               [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-                               [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-                               [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-                               [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-                               [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
-                               [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
-                               [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+        # test_image = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        #                        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
+        #                        [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
+        #                        [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+        #                        [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+        #                        [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+        #                        [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+        #                        [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
+        #                        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
+        #                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+
+        def draw_circle(radius, width):
+            
+            size = 2 * (radius + width)
+            image = np.zeros((size, size), dtype=np.uint8)
+            center = (radius + width, radius + width)
+            for i in range(size):
+                for j in range(size):
+                    if (i - center[0]) ** 2 + (j - center[1]) ** 2 <= radius ** 2:
+                        image[i, j] = 255
+
+            return image
+
+        test_image = draw_circle(40, 1)
+
         Integrated_test_image = Integrator(test_image, Board_Size, method='fit')
         binary_test_image = convert_to_binary(Integrated_test_image)
 
