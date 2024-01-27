@@ -177,14 +177,6 @@ def find_spanning_trees(graph, by):
                         spanning_tree['edges'].append((current_node, neighbor))
                         stack.append(neighbor)
 
-            # current_node = stack.pop()
-            # spanning_tree['nodes'].add(current_node)
-            # for neighbor in sorted(graph.get(current_node, [])):
-            #     if neighbor not in visited:
-            #         visited.add(neighbor)
-            #         stack.append(neighbor)
-            #         spanning_tree['edges'].append((current_node, neighbor))
-
     def recursive_dfs(start, spanning_tree):
         visited.add(start)
         spanning_tree['nodes'].add(start)
