@@ -2,7 +2,6 @@ import numpy as np
 from scipy.spatial.distance import euclidean, cityblock
 import matplotlib.pyplot as plt
 import cv2
-from skimage.draw import disk
 from PIL import Image, ImageDraw, ImageFont
 from queue import Queue, PriorityQueue
 import heapq
@@ -321,13 +320,13 @@ def main(Args=None):
         #                        [0, 0, 0, 0, 0, 0],
         #                        [1, 1, 0, 1, 1, 1],
         #                        [0, 0, 0, 0, 0, 0]])
-        # test_image = np.array([[1, 1, 1, 1, 1, 1],
-        #                        [1, 0, 0, 0, 0, 1],
-        #                        [1, 0, 1, 1, 0, 1],
-        #                        [1, 0, 0, 0, 0, 1],
-        #                        [1, 0, 0, 1, 1, 1],
-        #                        [1, 0, 1, 0, 1, 1],
-        #                        [1, 0, 1, 1, 0, 1]])
+        test_image = np.array([[1, 1, 1, 1, 1, 1],
+                               [1, 0, 0, 0, 0, 1],
+                               [1, 0, 1, 1, 0, 1],
+                               [1, 0, 0, 0, 0, 1],
+                               [1, 0, 0, 1, 1, 1],
+                               [1, 0, 1, 0, 1, 1],
+                               [1, 0, 1, 1, 0, 1]])
         # test_image = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         #                        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
         #                        [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
@@ -338,17 +337,6 @@ def main(Args=None):
         #                        [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
         #                        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
         #                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
-
-        def draw_circle(radius, width):
-            
-            simage = np.zeros((2 * (radius + width), 2 * (radius + width)), dtype=np.uint8)
-            center = (radius + width, radius + width)
-            rr, cc = disk(center, radius + width, shape=image.shape)
-            image[rr, cc] = 255
-
-            return image
-
-        test_image = draw_circle(40, 1)
 
         Integrated_test_image = Integrator(test_image, Board_Size, method='fit')
         binary_test_image = convert_to_binary(Integrated_test_image)

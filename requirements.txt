@@ -1,1 +1,9 @@
 Python
+
+- numpy
+- scipy
+- matplotlib
+- cv2
+- PIL
+- queue
+- itertools
