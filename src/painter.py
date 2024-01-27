@@ -2,6 +2,7 @@ import numpy as np
 from scipy.spatial.distance import euclidean, cityblock
 import matplotlib.pyplot as plt
 import cv2
+from skimage.draw import disk
 from PIL import Image, ImageDraw, ImageFont
 from queue import Queue, PriorityQueue
 import heapq
@@ -340,13 +341,10 @@ def main(Args=None):
 
         def draw_circle(radius, width):
             
-            size = 2 * (radius + width)
-            image = np.zeros((size, size), dtype=np.uint8)
+            simage = np.zeros((2 * (radius + width), 2 * (radius + width)), dtype=np.uint8)
             center = (radius + width, radius + width)
-            for i in range(size):
-                for j in range(size):
-                    if (i - center[0]) ** 2 + (j - center[1]) ** 2 <= radius ** 2:
-                        image[i, j] = 255
+            rr, cc = disk(center, radius + width, shape=image.shape)
+            image[rr, cc] = 255
 
             return image
 
