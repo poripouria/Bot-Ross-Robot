@@ -224,12 +224,4 @@ void loop ()
   }
   allstop();
 
-
-//  penup();
-//  while (millis() - startTime < 2000)
-//  {
-//    tight();
-//  }
-//  allstop();
-
 }
