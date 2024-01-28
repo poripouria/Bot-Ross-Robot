@@ -7,7 +7,7 @@ from queue import Queue, PriorityQueue
 import heapq
 from itertools import product, permutations
 
-Board_Size = [200, 150] # 20cm × 15cm (In BotRossPixel format)
+Board_Size = [250, 200] # 25cm × 20cm (In BotRossPixel format)
 
 def Integrator(input_image, output_size, method='fit'):
     """
@@ -142,17 +142,6 @@ def image_to_graph(bin_img):
                                 add_node(i, j)
                                 add_edge(x, y, i, j)
 
-    # for x in range(cols):
-    #     for y in range(rows):
-    #         if bin_img[x, y] == 0:
-    #             add_node(x, y)
-    #             for i in range(x - 1, x + 2):
-    #                 for j in range(y - 1, y + 2):
-    #                     if 0 <= i < cols and 0 <= j < rows and bin_img[i, j] == 0:
-    #                         if i != x or j != y:
-    #                             add_node(i, j)
-    #                             add_edge(x, y, i, j)
-
     with open('./logs/output-graph-logger.txt', 'w') as file:
         file.write(str(graph))
 
@@ -256,6 +245,29 @@ def painter(bin_img):
         Nothing (Draw and Writes the sequence of (x, y, z) points to a file)
     """
 
+    def divide_movement(file, start, end):
+        step_size = 1.5
+        x1, y1 = start
+        x2, y2 = end
+        distance = euclidean((x1, y1), (x2, y2))
+        print(f'({x1}, {y1}), ({x2}, {y2})', distance)
+
+        if distance < step_size:
+            file.write(f"Mv fr ({start[0]}, {start[1]}) to ({end[0]}, {end[1]})\n")
+        else:
+            dx = int(x2 - x1)
+            dy = int(y2 - y1)
+            if abs(dx) > abs(dy):
+                file.write(f"Mv fr ({x1}, {y1}) to ({x1-1 if dx<0 else x1+1}, {y1})\n")
+                divide_movement(file, (x1-1 if dx<0 else x1+1, y1), (x2, y2))
+            elif abs(dx) < abs(dy):
+                file.write(f"Mv fr ({x1}, {y1}) to ({x1}, {y1-1 if dy<0 else y1+1})\n")
+                divide_movement(file, (x1, y1-1 if dy<0 else y1+1), (x2, y2))
+            else:
+                file.write(f"Mv fr ({x1}, {y1}) to ({x1-1 if dx<0 else x1+1}, {y1-1 if dy<0 else y1+1})\n")
+                divide_movement(file, (x1-1 if dx<0 else x1+1, y1-1 if dy<0 else y1+1), (x2, y2))
+
+
     graph = image_to_graph(bin_img)
     spanning_trees = find_spanning_trees(graph, 'recursive_dfs')
     init_pos = [0, 0]
@@ -269,7 +281,8 @@ def painter(bin_img):
             nodes = [list(map(int, node[1:].split('_'))) for node in nodes]
             nearest_node = min(nodes, key=lambda node: cityblock(robot_position, node))
             x, y = nearest_node
-            file.write(f"Mv to ({x}, {y})\n")
+            if robot_position != [x, y]:
+                divide_movement(file, (robot_position[0], robot_position[1]), (x, y))
             robot_position = nearest_node
 
             edges = spanning_tree['edges']
@@ -279,15 +292,16 @@ def painter(bin_img):
                 x_start, y_start = map(int, edge[0][1:].split('_'))
                 x_end, y_end = map(int, edge[1][1:].split('_'))
                 if robot_position != [x_start, y_start]:
-                    file.write(f"Mv to ({x_start}, {y_start})\n")
+                    divide_movement(file, (robot_position[0], robot_position[1]), (x_start, y_start))
                 file.write(f"Dr fr ({x_start}, {y_start}) to ({x_end}, {y_end})\n")
                 robot_position = [x_end, y_end]
+
+        divide_movement(file, (robot_position[0], robot_position[1]), (init_pos[0], init_pos[1]))
 
 def algorithm(test_image):
 
     Integrated_test_image = Integrator(test_image, Board_Size, method='fit')
     binary_test_image = convert_to_binary(Integrated_test_image)
-
     painter(binary_test_image)
-    plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
-    plt.show()
+    # plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
+    # plt.show()
