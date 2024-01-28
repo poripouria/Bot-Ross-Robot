@@ -1,5 +1,5 @@
 numpy
 scipy
 matplotlib
-cv2
-PIL
+cv2 or opencv-python
+PIL or pillow
