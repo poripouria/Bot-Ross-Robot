@@ -148,47 +148,35 @@ def image_to_graph(bin_img, pruning=True):
 
     def prune_graph(graph):
         """
-        If there exist a path with one horizontal and one vertical edge between starting and 
+        If there exists a path with one horizontal and one vertical edge between the starting and 
         ending nodes of one diagonal edge, then it should be DELETED
         """
+        pruned_graph = graph.copy()
 
-        def is_horizontal(edge):
-            return edge[0][0] == edge[1][0]
-
-        def is_vertical(edge):
-            return edge[0][1] == edge[1][1]
-
-        def get_diagonal_neighbors(node, graph):
-            x, y = map(int, node[1:].split('_'))
-            neighbors = graph[node]
-            diagonal_neighbors = set()
+        for node in pruned_graph:
+            neighbors = pruned_graph[node]
 
             for neighbor in neighbors:
-                nx, ny = map(int, neighbor[1:].split('_'))
-                if abs(nx - x) == 1 and abs(ny - y) == 1:
-                    diagonal_neighbors.add(neighbor)
+                # Extract the numeric parts of the node names as integers
+                node_row, node_col = int(node[:-2]), int(node[-1])
+                neighbor_row, neighbor_col = int(neighbor[:-2]), int(neighbor[-1])
 
-            return diagonal_neighbors
+                # Check if the current edge is diagonal
+                if abs(node_col - neighbor_col) == abs(node_row - neighbor_row):
+                    horizontal_path = set()
+                    vertical_path = set()
 
-        pruned_graph = {node: set(neighbors) for node, neighbors in graph.items()}
+                    for other_neighbor in neighbors:
+                        if other_neighbor[-1] == node[-1]:
+                            horizontal_path.add(other_neighbor)
 
-        for node in graph:
-            diagonal_neighbors = get_diagonal_neighbors(node, graph)
+                    for other_neighbor in pruned_graph[neighbor]:
+                        if other_neighbor[-1] == neighbor[-1]:
+                            vertical_path.add(other_neighbor)
 
-            for diagonal_edge in diagonal_neighbors:
-                if is_horizontal(diagonal_edge):
-                    horizontal_neighbor = f"v{diagonal_edge[1]}_{diagonal_edge[4]}"
-                    vertical_neighbor = f"v{node[1]}_{diagonal_edge[4]}"
-                elif is_vertical(diagonal_edge):
-                    horizontal_neighbor = f"v{node[1]}_{diagonal_edge[4]}"
-                    vertical_neighbor = f"v{diagonal_edge[1]}_{diagonal_edge[4]}"
-                else:
-                    continue
-
-                if horizontal_neighbor in graph and vertical_neighbor in graph[horizontal_neighbor]:
-                    # If there is a horizontal and a vertical edge between the diagonal edge's start and end points, remove the diagonal edge
-                    pruned_graph[node].remove(diagonal_edge)
-                    pruned_graph[diagonal_edge[1:]].remove(node)
+                    if len(horizontal_path & vertical_path) > 0:
+                        pruned_graph[node].remove(neighbor)
+                        pruned_graph[neighbor].remove(node)
 
         return pruned_graph
 
