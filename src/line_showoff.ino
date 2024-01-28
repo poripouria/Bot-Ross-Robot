@@ -120,7 +120,7 @@ void loop ()
   // -1 right
   
   penup();
-  while (millis() - startTime < 203000)
+  while (millis() - startTime < 205000)
   {
     //starting point
     while(millis() - startTime < 5000)    leftright(-1);
@@ -128,22 +128,24 @@ void loop ()
     //5cm vertical line
     pendown();
     while(millis() - startTime > 5000 && millis() - startTime < 10000)   leftright(-1);
-
+    
     //2cm shift 
     penup();
-    while(millis() - startTime > 10000 && millis() - startTime < 12000)   leftright(-1);
+    while(millis() - startTime > 10000 && millis() - startTime < 10500);
+    while(millis() - startTime > 10500 && millis() - startTime < 12500)   leftright(-1);
 
     //5cm horizontal line
     pendown();
-    while(millis() - startTime > 12000 && millis() - startTime < 17000)   updown(-1);
+    while(millis() - startTime > 12500 && millis() - startTime < 17500)   updown(-1);
 
     //2cm shift
     penup();
-    while(millis() - startTime > 17000 && millis() - startTime < 19000)   leftright(-1);
+    while(millis() - startTime > 17500 && millis() - startTime < 18000);
+    while(millis() - startTime > 18000 && millis() - startTime < 20000)   leftright(-1);
 
     //5*sqrt(2) diagonal 1
     pendown();
-    while(millis() - startTime > 19000 && millis() - startTime < 24000)
+    while(millis() - startTime > 20000 && millis() - startTime < 25000)
     {
       leftright(-1);
       updown(+1);
@@ -151,11 +153,12 @@ void loop ()
 
     //2cm shift
     penup();
-    while(millis() - startTime > 24000 && millis() - startTime < 26000)   leftright(-1);
+    while(millis() - startTime > 25000 && millis() - startTime < 25500);
+    while(millis() - startTime > 25500 && millis() - startTime < 27500)   leftright(-1);
 
     //5*sqrt(2) diagonal 2
     pendown();
-    while(millis() - startTime > 26000 && millis() - startTime < 31000)
+    while(millis() - startTime > 27500 && millis() - startTime < 32500)
     {
       leftright(-1);
       updown(-1);
@@ -164,12 +167,13 @@ void loop ()
     //come back
     //new staring position
     penup();
-    while(millis() - startTime > 31000 && millis() - startTime < 36000)   updown(-1);
-    while(millis() - startTime > 36000 && millis() - startTime < 57000)   leftright(+1);
+    while(millis() - startTime > 32500 && millis() - startTime < 33000);
+    while(millis() - startTime > 33000 && millis() - startTime < 38000)   updown(-1);
+    while(millis() - startTime > 38000 && millis() - startTime < 59000)   leftright(+1);
 
     
     //tighten
-    while(millis() - startTime > 57000 && millis() - startTime < 60000)    tight();  
+    while(millis() - startTime > 59000 && millis() - startTime < 60000)    tight();  
 
     //5cm square
     pendown();
@@ -180,24 +184,26 @@ void loop ()
 
     //2cm shift
     penup();
-    while(millis() - startTime > 80000 && millis() - startTime < 87000)   leftright(-1);
+    while(millis() - startTime > 80000 && millis() - startTime < 80500);
+    while(millis() - startTime > 80500 && millis() - startTime < 87500)   leftright(-1);
 
     //10cm*5cm rectangle 
     pendown();
-    while(millis() - startTime > 87000 && millis() - startTime < 97000)   leftright(-1);
-    while(millis() - startTime > 97000 && millis() - startTime < 102000)   updown(-1);
-    while(millis() - startTime > 102000 && millis() - startTime < 112000)   leftright(+1);
-    while(millis() - startTime > 112000 && millis() - startTime < 117000)   updown(+1);
+    while(millis() - startTime > 87500 && millis() - startTime < 97500)   leftright(-1);
+    while(millis() - startTime > 97500 && millis() - startTime < 102500)   updown(-1);
+    while(millis() - startTime > 102500 && millis() - startTime < 112500)   leftright(+1);
+    while(millis() - startTime > 112500 && millis() - startTime < 117500)   updown(+1);
 
     //3cm shift
     penup();
-    while(millis() - startTime > 117000 && millis() - startTime < 130000)   leftright(-1);
+    while(millis() - startTime > 117500 && millis() - startTime < 118000);
+    while(millis() - startTime > 118000 && millis() - startTime < 131000)   leftright(-1);
 
     //triangle 1
     pendown();
-    while(millis() - startTime > 130000 && millis() - startTime < 135000)   updown(-1);
-    while(millis() - startTime > 135000 && millis() - startTime < 140000)   leftright(-1);
-    while(millis() - startTime > 140000 && millis() - startTime < 145000)
+    while(millis() - startTime > 131000 && millis() - startTime < 136000)   updown(-1);
+    while(millis() - startTime > 136000 && millis() - startTime < 141000)   leftright(-1);
+    while(millis() - startTime > 141000 && millis() - startTime < 146000)
     {
       leftright(+1);
       updown(+1);
@@ -205,12 +211,13 @@ void loop ()
 
     //triangle 2 starting position
     penup();
-    while(millis() - startTime > 145000 && millis() - startTime < 148000)   leftright(-1);
+    while(millis() - startTime > 146000 && millis() - startTime < 146500);
+    while(millis() - startTime > 146500 && millis() - startTime < 149500)   leftright(-1);
 
     pendown();
-    while(millis() - startTime > 148000 && millis() - startTime < 153000)   leftright(-1);
-    while(millis() - startTime > 153000 && millis() - startTime < 158000)   updown(-1);
-    while(millis() - startTime > 158000 && millis() - startTime < 163000)
+    while(millis() - startTime > 149500 && millis() - startTime < 154500)   leftright(-1);
+    while(millis() - startTime > 154500 && millis() - startTime < 159500)   updown(-1);
+    while(millis() - startTime > 159500 && millis() - startTime < 164500)
     {
       leftright(+1);
       updown(+1);
@@ -218,9 +225,10 @@ void loop ()
 
     //comeback to starting pos
     penup();
-    while(millis() - startTime > 163000 && millis() - startTime < 191000)   leftright(+1);
-    while(millis() - startTime > 191000 && millis() - startTime < 201000)   updown(+1);
-    while(millis() - startTime > 201000 && millis() - startTime < 203000)   tight();
+    while(millis() - startTime > 164500 && millis() - startTime < 165000);
+    while(millis() - startTime > 165000 && millis() - startTime < 193000)   leftright(+1);
+    while(millis() - startTime > 193000 && millis() - startTime < 203000)   updown(+1);
+    while(millis() - startTime > 203000 && millis() - startTime < 205000)   tight();
   }
   allstop();
 
