@@ -7,15 +7,7 @@ from queue import Queue, PriorityQueue
 import heapq
 from itertools import product, permutations
 
-class BotRoss():
-    """
-    Bot Ross Object
-    """
-
-    def __init__(self):
-        pass
-
-Board_Size = [200, 200] # 20cm × 20cm (In BRPixel format)
+Board_Size = [200, 150] # 20cm × 15cm (In BotRossPixel format)
 
 def Integrator(input_image, output_size, method='fit'):
     """
@@ -150,6 +142,17 @@ def image_to_graph(bin_img):
                                 add_node(i, j)
                                 add_edge(x, y, i, j)
 
+    # for x in range(cols):
+    #     for y in range(rows):
+    #         if bin_img[x, y] == 0:
+    #             add_node(x, y)
+    #             for i in range(x - 1, x + 2):
+    #                 for j in range(y - 1, y + 2):
+    #                     if 0 <= i < cols and 0 <= j < rows and bin_img[i, j] == 0:
+    #                         if i != x or j != y:
+    #                             add_node(i, j)
+    #                             add_edge(x, y, i, j)
+
     with open('./logs/output-graph-logger.txt', 'w') as file:
         file.write(str(graph))
 
@@ -280,64 +283,11 @@ def painter(bin_img):
                 file.write(f"Dr fr ({x_start}, {y_start}) to ({x_end}, {y_end})\n")
                 robot_position = [x_end, y_end]
 
-def main(Args=None):
+def algorithm(test_image):
 
-    def algorithm_tester():
-        # test_image = cv2.imread("./assets/images/test/image.png")
-        # test_image = text_to_image("Pouria")
-        # test_image = np.array([[0, 0, 1, 0, 1],
-        #                        [0, 0, 1, 1, 0],
-        #                        [1, 0, 1, 1, 1],
-        #                        [0, 1, 1, 1, 1],
-        #                        [1, 1, 1, 1, 0]])
-        # test_image = np.array([[0, 1, 1, 1, 1],
-        #                        [1, 0, 1, 1, 1],
-        #                        [1, 1, 0, 1, 1],
-        #                        [1, 1, 1, 0, 1],
-        #                        [1, 1, 1, 1, 0]])
-        # test_image = np.array([[0, 1, 0, 1, 0],
-        #                        [0, 1, 0, 1, 0],
-        #                        [0, 1, 0, 1, 0],
-        #                        [0, 1, 0, 1, 0],
-        #                        [0, 1, 0, 1, 0]])
-        # test_image = np.array([[1, 1, 1, 1, 1],
-        #                        [1, 0, 0, 0, 1],
-        #                        [1, 0, 1, 0, 1],
-        #                        [1, 0, 0, 0, 1],
-        #                        [1, 1, 1, 1, 1]])
-        # test_image = np.array([[0, 0, 0, 0, 1, 1],
-        #                        [1, 0, 0, 0, 1, 1],
-        #                        [0, 0, 0, 0, 0, 0],
-        #                        [1, 1, 1, 1, 1, 1],
-        #                        [0, 0, 0, 0, 0, 0],
-        #                        [1, 1, 0, 1, 1, 1],
-        #                        [0, 0, 0, 0, 0, 0]])
-        test_image = np.array([[1, 1, 1, 1, 1, 1],
-                               [1, 0, 0, 0, 0, 1],
-                               [1, 0, 1, 1, 0, 1],
-                               [1, 0, 0, 0, 0, 1],
-                               [1, 0, 0, 1, 1, 1],
-                               [1, 0, 1, 0, 1, 1],
-                               [1, 0, 1, 1, 0, 1]])
-        # test_image = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        #                        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
-        #                        [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
-        #                        [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-        #                        [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-        #                        [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-        #                        [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-        #                        [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
-        #                        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
-        #                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+    Integrated_test_image = Integrator(test_image, Board_Size, method='fit')
+    binary_test_image = convert_to_binary(Integrated_test_image)
 
-        Integrated_test_image = Integrator(test_image, Board_Size, method='fit')
-        binary_test_image = convert_to_binary(Integrated_test_image)
-
-        painter(binary_test_image)
-        plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
-        plt.show()
-
-    algorithm_tester()
-
-if __name__ == "__main__":
-    main()
+    painter(binary_test_image)
+    plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
+    plt.show()
