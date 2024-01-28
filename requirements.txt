@@ -1,7 +1,5 @@
-Python
-
-- numpy
-- scipy
-- matplotlib
-- cv2
-- PIL
+numpy
+scipy
+matplotlib
+cv2
+PIL
