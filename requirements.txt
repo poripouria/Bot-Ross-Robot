@@ -5,3 +5,5 @@ Python
 - matplotlib
 - cv2
 - PIL
+- queue
+- itertools
