@@ -104,7 +104,7 @@ def text_to_image(txt="Hello, I am Bot Ross.", fnt='./assets/fonts/Seven Segment
 
     return img
 
-def image_to_graph(bin_img):
+def image_to_graph(bin_img, pruning=True):
     """
     Converts an image to the graph data structure
     Args:
@@ -144,6 +144,33 @@ def image_to_graph(bin_img):
 
     with open('./logs/output-graph-logger.txt', 'w') as file:
         file.write(str(graph))
+
+    def prune_graph(graph):
+        def is_edge_redundant(graph, edge):
+            u, v = edge
+            if len(graph[u]) <= 2 or len(graph[v]) <= 2:
+                return False
+            queue = [u]
+            visited = {u}
+            while queue:
+                node = queue.pop()
+                for neighbor in graph[node]:
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        if neighbor == v:
+                            return True
+                        queue.append(neighbor)
+            return False
+
+        edges = list(graph.edges)
+        for edge in edges:
+            if is_edge_redundant(graph, edge):
+                graph.remove_edge(*edge)
+
+        return graph
+
+    if pruning:
+        graph = prune_graph(graph)
 
     return graph
 
