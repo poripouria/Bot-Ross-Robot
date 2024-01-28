@@ -145,39 +145,29 @@ def image_to_graph(bin_img, pruning=True):
     with open('./logs/output-graph-logger.txt', 'w') as file:
         file.write(str(graph))
 
-
     def prune_graph(graph):
         """
         If there exists a path with one horizontal and one vertical edge between the starting and 
         ending nodes of one diagonal edge, then it should be DELETED
         """
+        # Make a copy of the graph to avoid modifying the original
         pruned_graph = graph.copy()
-
-        for node in pruned_graph:
-            neighbors = pruned_graph[node]
-
+        # Iterate over all the keys and values in the graph
+        for node, neighbors in graph.items():
+            # Iterate over all the neighbors of the node
             for neighbor in neighbors:
-                # Extract the numeric parts of the node names as integers
-                node_row, node_col = int(node[:-2]), int(node[-1])
-                neighbor_row, neighbor_col = int(neighbor[:-2]), int(neighbor[-1])
-
-                # Check if the current edge is diagonal
-                if abs(node_col - neighbor_col) == abs(node_row - neighbor_row):
-                    horizontal_path = set()
-                    vertical_path = set()
-
-                    for other_neighbor in neighbors:
-                        if other_neighbor[-1] == node[-1]:
-                            horizontal_path.add(other_neighbor)
-
-                    for other_neighbor in pruned_graph[neighbor]:
-                        if other_neighbor[-1] == neighbor[-1]:
-                            vertical_path.add(other_neighbor)
-
-                    if len(horizontal_path & vertical_path) > 0:
+                # Check if the neighbor is a diagonal edge
+                if node[0] != neighbor[0] and node[2] != neighbor[2]:
+                    # Find the horizontal and vertical nodes that form a path with the diagonal edge
+                    horizontal_node = node[0] + neighbor[1:]
+                    vertical_node = neighbor[0] + node[2:]
+                    # Check if the horizontal and vertical nodes are in the graph and are adjacent to the node and the neighbor
+                    if (horizontal_node in graph and horizontal_node in graph[node] and horizontal_node in graph[neighbor]) and \
+                    (vertical_node in graph and vertical_node in graph[node] and vertical_node in graph[neighbor]):
+                        # Remove the diagonal edge from the pruned graph
                         pruned_graph[node].remove(neighbor)
                         pruned_graph[neighbor].remove(node)
-
+        # Return the pruned graph
         return pruned_graph
 
     if pruning:
@@ -340,5 +330,5 @@ def algorithm(test_image):
     Integrated_test_image = Integrator(test_image, Board_Size, method='fit')
     binary_test_image = convert_to_binary(Integrated_test_image)
     painter(binary_test_image)
-    # plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
-    # plt.show()
+    plt.imshow(cv2.cvtColor(binary_test_image, cv2.COLOR_BGR2RGB))
+    plt.show()
