@@ -250,8 +250,7 @@ def painter(bin_img):
         x1, y1 = start
         x2, y2 = end
         distance = euclidean((x1, y1), (x2, y2))
-        print(f'({x1}, {y1}), ({x2}, {y2})', distance)
-
+        # print(f'({x1}, {y1}), ({x2}, {y2})', distance)
         if distance < step_size:
             file.write(f"Mv fr ({start[0]}, {start[1]}) to ({end[0]}, {end[1]})\n")
         else:
