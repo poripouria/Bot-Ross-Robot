@@ -87,7 +87,7 @@ def text_to_image(txt="Hello, I am Bot Ross.", fnt='./assets/fonts/Seven Segment
 
     if 60 < len(txt):
         print('Text is too long')
-        txt = txt[:60] + " ..."
+        txt = txt[:56] + " ..."
     if 15 < len(txt) <= 30:
         for i in range(15, len(txt)):
             if txt[i] == ' ':

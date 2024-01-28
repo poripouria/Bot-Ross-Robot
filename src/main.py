@@ -11,7 +11,9 @@ class BotRoss():
         pos = (0, 0, 0)
         
 def cmd_sender(logger='./logs/painting-simulator-logger.txt'):
-
+    """
+    Generator function to read the logger file and yield the commands for ino server
+    """
     pattern = re.compile(r' fr \((\d+), (\d+)\) to \((\d+), (\d+)\)')
 
     with open(logger, 'r') as file:
@@ -50,7 +52,7 @@ def cmd_sender(logger='./logs/painting-simulator-logger.txt'):
             raise ValueError("Something went wrong in Logger file!")
 
         milliseconds = 100
-        time.sleep(milliseconds / 1000.0)  # Divide by 1000 to convert milliseconds to seconds
+        time.sleep(milliseconds / 1000.0)
         yield cmd
         
 def main(Args=None):
