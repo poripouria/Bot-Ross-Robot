@@ -23,7 +23,8 @@ def cmd_sender(logger='./logs/painting-simulator-logger.txt'):
         cmd = ""
         if line.startswith('Painting Segment'):
             continue
-        if line == '\n':
+        if line.startswith('EOF'):
+            yield '000'
             break
         elif line.startswith('Mv') or line.startswith('Dr'):
 

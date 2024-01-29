@@ -324,6 +324,7 @@ def painter(bin_img):
                 robot_position = [x_end, y_end]
 
         divide_movement(file, (robot_position[0], robot_position[1]), (init_pos[0], init_pos[1]))
+        file.write("EOF\n")
 
 def algorithm(test_image):
 
