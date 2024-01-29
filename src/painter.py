@@ -7,7 +7,7 @@ from queue import Queue, PriorityQueue
 import heapq
 from itertools import product, permutations
 
-Board_Size = [125, 100] # 25cm × 20cm (In BotRossPixel format: Marker_head = 2mm)
+Board_Size = [250, 200] # 25cm × 20cm (In BotRossPixel format: Marker_head = 1mm)
 
 def Integrator(input_image, output_size, method='fit'):
     """

@@ -4,7 +4,7 @@ import sys
 import time
 from pySerialTransfer import pySerialTransfer as txfer
         
-sys.setrecursionlimit(200)
+sys.setrecursionlimit(2000)
         
 def cmd_logger(simulator='./logs/painting-simulator-logger.txt'):
     """
@@ -31,7 +31,6 @@ def cmd_logger(simulator='./logs/painting-simulator-logger.txt'):
                 cmd += "0"
 
             x1, y1, x2, y2 = map(int, pattern.search(line).groups())
-            # print(x1, x2, y1, y2)
             dx = x2 - x1
             dy = y2 - y1
             if dx < 0:
@@ -95,15 +94,13 @@ def main(Args=None):
     algorithm(test_image)
 
     commands = list(cmd_logger())
-    cmd_sender(commands)
-    # print(commands)
+    # cmd_sender(commands)
+    print(commands)
 
     with open('./logs/commands-logger.txt', 'w') as f:
         f.write(f'char str[{len(commands)}][4] =' + ' {')
         for i, cmd in enumerate(commands):
             f.write(f'\"{cmd}\", ') if i < len(commands)-1 else f.write(f'\"{cmd}\"' + '};')
-
-    #TODO: Add Pruning function to Prune the Graph which is extracted feom binary image
 
 if __name__ == "__main__":
     main()
