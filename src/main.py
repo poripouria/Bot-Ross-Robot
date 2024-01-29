@@ -83,7 +83,7 @@ def cmd_sender(commands):
 
 
 def main(Args=None):
-    test_image = cv2.imread("./assets/images/test/full-circle.png")
+    test_image = cv2.imread("./assets/images/test/text-art.jpg")
     # test_image = text_to_image("K-P")
     # test_image = np.array([[0, 1, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],
@@ -95,7 +95,6 @@ def main(Args=None):
 
     commands = list(cmd_logger())
     # cmd_sender(commands)
-    print(commands)
 
     with open('./logs/commands-logger.txt', 'w') as f:
         f.write(f'char str[{len(commands)}][4] =' + ' {')

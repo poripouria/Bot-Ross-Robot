@@ -7,7 +7,7 @@ from queue import Queue, PriorityQueue
 import heapq
 from itertools import product, permutations
 
-Board_Size = [250, 200] # 25cm × 20cm (In BotRossPixel format: Marker_head = 1mm)
+Board_Size = (250, 200) # 25cm × 20cm (In BotRossPixel format: Marker_head = 1mm)
 
 def Integrator(input_image, output_size, method='fit'):
     """
@@ -38,20 +38,24 @@ def Integrator(input_image, output_size, method='fit'):
     else:
         raise ValueError("Unsupported image input type")
 
-    threshold = (70, 70)
+    threshold = (100, 75)
     if image.shape <= threshold:
         return image
 
     print(f'Image size before: {image.shape}')
     if method == 'fit':
-        if image.shape[0] >= output_size[1] and image.shape[1] <= output_size[0]:
+        if image.shape[1] <= output_size[0] and image.shape[0] >= output_size[1]:
+            print(1)
             scale = output_size[1] / image.shape[0]
         elif image.shape[1] >= output_size[0] and image.shape[0] <= output_size[1]:
+            print(2)
             scale = output_size[0] / image.shape[1]
         elif image.shape[1] <= output_size[0] and image.shape[0] <= output_size[1]:
+            print(3)
             scale = min(output_size[0] / image.shape[1], output_size[1] / image.shape[0])
         else:
-            scale = min(image.shape[0] / output_size[1], image.shape[1] / output_size[0])
+            print(4)
+            scale = max(output_size[0] / image.shape[1], output_size[1] / image.shape[0])
         print(f'Scaling Ratio: {scale}')
         final_image = cv2.resize(image, None, fx=scale, fy=scale, interpolation= cv2.INTER_NEAREST) 
     elif method == 'fill':
