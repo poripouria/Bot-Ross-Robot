@@ -60,13 +60,13 @@ def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
             yield cmd
         
 def main(Args=None):
-    # test_image = cv2.imread("./assets/images/test/image.png")
+    test_image = cv2.imread("./assets/images/test/circle-test.png")
     # test_image = text_to_image()
-    test_image = np.array([[0, 0, 1, 0, 1],
-                           [0, 0, 1, 1, 0],
-                           [1, 0, 1, 1, 1],
-                           [0, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 0]])
+    # test_image = np.array([[0, 0, 1, 0, 1],
+    #                        [0, 0, 1, 1, 0],
+    #                        [1, 0, 1, 1, 1],
+    #                        [0, 1, 1, 1, 1],
+    #                        [1, 1, 1, 1, 0]])
     # test_image = np.array([[0, 1, 1, 1, 1],
     #                        [1, 0, 1, 1, 1],
     #                        [1, 1, 0, 1, 1],
@@ -109,7 +109,7 @@ def main(Args=None):
 
     algorithm(test_image)
     commands = list(cmd_sender())
-    print(commands)
+    # print(commands)
 
     #TODO: Add Pruning function to Prune the Graph which is extracted feom binary image
 
