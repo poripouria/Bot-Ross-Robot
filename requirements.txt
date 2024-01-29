@@ -3,3 +3,4 @@ scipy
 matplotlib
 opencv-python # cv2
 pillow # PIL
+pySerialTransfer

@@ -150,24 +150,23 @@ def image_to_graph(bin_img, pruning=True):
         If there exists a path with one horizontal and one vertical edge between the starting and 
         ending nodes of one diagonal edge, then it should be DELETED
         """
-        # Make a copy of the graph to avoid modifying the original
         pruned_graph = graph.copy()
-        # Iterate over all the keys and values in the graph
-        for node, neighbors in graph.items():
-            # Iterate over all the neighbors of the node
-            for neighbor in neighbors:
-                # Check if the neighbor is a diagonal edge
-                if node[0] != neighbor[0] and node[2] != neighbor[2]:
+        for node in graph.items():
+            print(node[0])
+            x_node, y_node = map(int, node[0][1:].split('_'))
+            for neighbor in graph.get(node):
+                x_neighbor, y_neighbor = map(int, neighbor[1:].split('_'))
+                if x_node != x_neighbor and y_node != y_neighbor:
                     # Find the horizontal and vertical nodes that form a path with the diagonal edge
-                    horizontal_node = node[0] + neighbor[1:]
-                    vertical_node = neighbor[0] + node[2:]
+                    horizontal_node = f'v{x_node}_{y_neighbor}'
+                    vertical_node = f'v{x_neighbor}_{y_node}'
                     # Check if the horizontal and vertical nodes are in the graph and are adjacent to the node and the neighbor
                     if (horizontal_node in graph and horizontal_node in graph[node] and horizontal_node in graph[neighbor]) and \
                     (vertical_node in graph and vertical_node in graph[node] and vertical_node in graph[neighbor]):
                         # Remove the diagonal edge from the pruned graph
                         pruned_graph[node].remove(neighbor)
                         pruned_graph[neighbor].remove(node)
-        # Return the pruned graph
+                
         return pruned_graph
 
     if pruning:

@@ -1,6 +1,7 @@
 from painter import *
 import time
 import re
+import sys
 
 class BotRoss():
     """
@@ -9,6 +10,9 @@ class BotRoss():
 
     def __init__(self):
         pos = (0, 0, 0)
+
+        
+sys.setrecursionlimit(200)
         
 def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
     """
