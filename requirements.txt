@@ -1,9 +1,5 @@
-Python
-
-- numpy
-- scipy
-- matplotlib
-- cv2
-- PIL
-- queue
-- itertools
+numpy
+scipy
+matplotlib
+opencv-python # cv2
+pillow # PIL
