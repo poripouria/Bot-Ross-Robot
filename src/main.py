@@ -6,16 +6,11 @@ from pySerialTransfer import pySerialTransfer as txfer
         
 sys.setrecursionlimit(200)
         
-def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
+def cmd_logger(simulator='./logs/painting-simulator-logger.txt'):
     """
-    Generator function to read the logger file and yield the commands for ino server
+    Generator function to read the logger file
     """
     pattern = re.compile(r' fr \((\d+), (\d+)\) to \((\d+), (\d+)\)')
-
-    link = txfer.SerialTransfer('COM3')
-        
-    link.open()
-    time.sleep(2) # allow some time for the Arduino to completely reset
 
     with open(simulator, 'r') as file:
         lines = file.readlines()
@@ -54,6 +49,18 @@ def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
         else:
             raise ValueError("Something went wrong in simulator file!")
 
+        yield cmd
+        
+def cmd_sender(commands):
+    """
+    yield the commands for ino server
+    """
+
+    link = txfer.SerialTransfer('COM3')
+    link.open()
+    time.sleep(2) # allow some time for the Arduino to completely reset
+
+    for cmd in commands:
         send_size = 0   
         str_size = link.tx_obj(cmd, send_size) - send_size
         send_size += str_size
@@ -72,11 +79,10 @@ def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
                     print('ERROR: {}'.format(link.status))
 
         rec_cmd   = link.rx_obj(obj_type=type(cmd),
-                                     obj_byte_size=str_size,
-                                     start_pos=0)
+                                obj_byte_size=str_size,
+                                start_pos=0)
 
-        yield cmd
-        
+
 def main(Args=None):
     test_image = cv2.imread("./assets/images/test/circle2.png")
    # test_image = text_to_image("K-P")
@@ -87,12 +93,14 @@ def main(Args=None):
     #                        [0, 1, 0, 1, 0, 1]])
 
     algorithm(test_image)
-    commands = list(cmd_sender())
+    commands = list(cmd_logger())
     # print(commands)
     with open('./logs/commands-logger.txt', 'w') as f:
         f.write(f'char str[{len(commands)}][4] =' + ' {')
         for i, cmd in enumerate(commands):
             f.write(f'\"{cmd}\", ') if i < len(commands)-1 else f.write(f'\"{cmd}\"' + '};')
+
+    cmd_sender(commands)
 
     #TODO: Add Pruning function to Prune the Graph which is extracted feom binary image
 
