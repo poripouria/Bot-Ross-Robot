@@ -108,12 +108,9 @@ def main(Args=None):
     commands = list(cmd_sender())
     # print(commands)
     with open('./logs/commands-logger.txt', 'w') as f:
-        f.write('char str[n][4] = {')
-        cntr = 0
+        f.write(f'char str[{len(commands)}][4] =' + ' {')
         for i, cmd in enumerate(commands):
             f.write(f'\"{cmd}\", ') if i < len(commands)-1 else f.write(f'\"{cmd}\"' + '};')
-            cntr += 1
-        f.write("\n" + str(cntr))
 
     #TODO: Add Pruning function to Prune the Graph which is extracted feom binary image
 
