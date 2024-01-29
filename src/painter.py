@@ -315,15 +315,25 @@ def painter(bin_img):
             edges = spanning_tree['edges']
             if not edges:
                 file.write(f"Dr fr ({x}, {y}) to ({x}, {y})\n")
+            cntr = 0
             for edge in edges:
                 x_start, y_start = map(int, edge[0][1:].split('_'))
+                if cntr == 0:
+                    first_draw = [x_start, y_start]
                 x_end, y_end = map(int, edge[1][1:].split('_'))
                 if robot_position != [x_start, y_start]:
                     divide_movement(file, (robot_position[0], robot_position[1]), (x_start, y_start))
                 file.write(f"Dr fr ({x_start}, {y_start}) to ({x_end}, {y_end})\n")
+                last_draw = [x_end, y_end]
                 robot_position = [x_end, y_end]
+                cntr += 1
 
-        divide_movement(file, (robot_position[0], robot_position[1]), (init_pos[0], init_pos[1]))
+        # print(first_draw, " --> ", last_draw)
+        if euclidean(first_draw, last_draw) < 1.5:
+            file.write(f"Dr fr ({last_draw[0]}, {last_draw[1]}) to ({first_draw[0]}, {first_draw[1]})\n")
+            divide_movement(file, (first_draw[0], first_draw[1]), (init_pos[0], init_pos[1]))
+        else:
+            divide_movement(file, (robot_position[0], robot_position[1]), (init_pos[0], init_pos[1]))
         file.write("EOF\n")
 
 def algorithm(test_image):
