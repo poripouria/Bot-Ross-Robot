@@ -53,9 +53,12 @@ def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
                 cmd += "0"
         else:
             raise ValueError("Something went wrong in simulator file!")
-            
-        str_size = link.tx_obj(cmd, 3)
-        link.send(3)
+
+        send_size = 0   
+        str_size = link.tx_obj(cmd, send_size) - send_size
+        send_size += str_size
+
+        link.send(str_size)
 
         while not link.available():
             if link.status < 0:
@@ -69,14 +72,14 @@ def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
                     print('ERROR: {}'.format(link.status))
 
         rec_cmd   = link.rx_obj(obj_type=type(cmd),
-                                     obj_byte_size=3,
+                                     obj_byte_size=str_size,
                                      start_pos=0)
 
         yield cmd
         
 def main(Args=None):
-    # test_image = cv2.imread("./assets/images/test/circle2.png")
-    test_image = text_to_image("K-P")
+    test_image = cv2.imread("./assets/images/test/circle2.png")
+   # test_image = text_to_image("K-P")
     # test_image = np.array([[0, 1, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],
