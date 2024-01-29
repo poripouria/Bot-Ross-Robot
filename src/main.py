@@ -84,7 +84,7 @@ def cmd_sender(commands):
 
 
 def main(Args=None):
-    test_image = cv2.imread("./assets/images/test/circle2.png")
+    test_image = cv2.imread("./assets/images/test/full-circle.png")
     # test_image = text_to_image("K-P")
     # test_image = np.array([[0, 1, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],
@@ -93,14 +93,15 @@ def main(Args=None):
     #                        [0, 1, 0, 1, 0, 1]])
 
     algorithm(test_image)
+
     commands = list(cmd_logger())
+    cmd_sender(commands)
     # print(commands)
+
     with open('./logs/commands-logger.txt', 'w') as f:
         f.write(f'char str[{len(commands)}][4] =' + ' {')
         for i, cmd in enumerate(commands):
             f.write(f'\"{cmd}\", ') if i < len(commands)-1 else f.write(f'\"{cmd}\"' + '};')
-
-    cmd_sender(commands)
 
     #TODO: Add Pruning function to Prune the Graph which is extracted feom binary image
 
