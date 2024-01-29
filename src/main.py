@@ -85,7 +85,7 @@ def cmd_sender(commands):
 
 def main(Args=None):
     test_image = cv2.imread("./assets/images/test/circle2.png")
-   # test_image = text_to_image("K-P")
+    # test_image = text_to_image("K-P")
     # test_image = np.array([[0, 1, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],
