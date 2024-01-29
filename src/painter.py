@@ -98,7 +98,7 @@ def text_to_image(txt="Hello, I am Bot Ross.", fnt='./assets/fonts/arial.ttf'):
                 txt = txt[:i] + '\n' + txt[i+1:]
     img = Image.new('RGB', (Board_Size[0], Board_Size[1]), (255, 255, 255))
     d = ImageDraw.Draw(img)
-    font = ImageFont.truetype(fnt, int(Board_Size[1]/5))
+    font = ImageFont.truetype(fnt, int(Board_Size[1]/6))
     d.text((int(Board_Size[0]/100), int(Board_Size[1]/150)), txt, font=font, fill=(0,0,0))
     img = np.array(img)
 
