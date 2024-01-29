@@ -175,12 +175,12 @@ def image_to_graph(bin_img, pruning=True):
 
     return graph
 
-def find_spanning_trees(graph, by):
+def find_spanning_trees(graph, method):
     """
     Finds spanning trees for each connected component in the graph
     Args:
         graph: Graph (dictionary)
-        by: Method to find spanning trees
+        method: Method to find spanning trees
     Returns:
         List of spanning trees (subgraphs) with edges
     """
@@ -254,8 +254,8 @@ def find_spanning_trees(graph, by):
         if node not in visited:
             spanning_tree = {'nodes': set(), 'edges': []}
             try:
-                method = methods[by]
-                method(node, spanning_tree)
+                m = methods[method]
+                m(node, spanning_tree)
             except KeyError:
                 raise ValueError('Invalid method of find_spanning_trees')
             spanning_trees.append(spanning_tree)
