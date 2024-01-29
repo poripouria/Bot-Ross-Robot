@@ -4,7 +4,7 @@ import sys
 import time
 from pySerialTransfer import pySerialTransfer as txfer
         
-sys.setrecursionlimit(2000)
+sys.setrecursionlimit(8000)
         
 def cmd_logger(simulator='./logs/painting-simulator-logger.txt'):
     """
@@ -83,7 +83,7 @@ def cmd_sender(commands):
 
 
 def main(Args=None):
-    test_image = cv2.imread("./assets/images/test/text-art.jpg")
+    test_image = cv2.imread("./assets/images/logo/Bot-Ross Logo-02.png")
     # test_image = text_to_image("K-P")
     # test_image = np.array([[0, 1, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],
