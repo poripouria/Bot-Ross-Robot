@@ -104,7 +104,7 @@ def text_to_image(txt="Hello, I am Bot Ross.", fnt='./assets/fonts/arial.ttf'):
 
     return img
 
-def image_to_graph(bin_img, pruning=True):
+def image_to_graph(bin_img, pruning=False):
     """
     Converts an image to the graph data structure
     Args:

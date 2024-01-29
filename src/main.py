@@ -1,16 +1,8 @@
 from painter import *
-import time
 import re
 import sys
-
-class BotRoss():
-    """
-    Bot Ross Object
-    """
-
-    def __init__(self):
-        pos = (0, 0, 0)
-
+import time
+from pySerialTransfer import pySerialTransfer as txfer
         
 sys.setrecursionlimit(200)
         
@@ -20,11 +12,17 @@ def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
     """
     pattern = re.compile(r' fr \((\d+), (\d+)\) to \((\d+), (\d+)\)')
 
+    link = txfer.SerialTransfer('COM3')
+        
+    link.open()
+    time.sleep(2) # allow some time for the Arduino to completely reset
+
     with open(simulator, 'r') as file:
         lines = file.readlines()
 
     for line in lines:
         cmd = ""
+
         if line.startswith('Painting Segment'):
             continue
         if line.startswith('EOF'):
@@ -55,9 +53,25 @@ def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
                 cmd += "0"
         else:
             raise ValueError("Something went wrong in simulator file!")
+            
+        str_size = link.tx_obj(cmd, 3)
+        link.send(3)
 
-        # milliseconds = 100
-        # time.sleep(milliseconds / 1000.0)
+        while not link.available():
+            if link.status < 0:
+                if link.status == txfer.CRC_ERROR:
+                    print('ERROR: CRC_ERROR')
+                elif link.status == txfer.PAYLOAD_ERROR:
+                    print('ERROR: PAYLOAD_ERROR')
+                elif link.status == txfer.STOP_BYTE_ERROR:
+                    print('ERROR: STOP_BYTE_ERROR')
+                else:
+                    print('ERROR: {}'.format(link.status))
+
+        rec_cmd   = link.rx_obj(obj_type=type(cmd),
+                                     obj_byte_size=3,
+                                     start_pos=0)
+
         yield cmd
         
 def main(Args=None):
