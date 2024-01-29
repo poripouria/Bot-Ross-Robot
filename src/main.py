@@ -58,7 +58,7 @@ def cmd_sender(simulator='./logs/painting-simulator-logger.txt'):
         
 def main(Args=None):
     # test_image = cv2.imread("./assets/images/test/hello.png")
-    test_image = text_to_image("Kasra")
+    test_image = text_to_image("K_P")
     # test_image = np.array([[0, 1, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],

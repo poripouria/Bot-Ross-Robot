@@ -38,7 +38,7 @@ def Integrator(input_image, output_size, method='fit'):
     else:
         raise ValueError("Unsupported image input type")
 
-    threshold = (100, 100)
+    threshold = (70, 70)
     if image.shape <= threshold:
         return image
 
