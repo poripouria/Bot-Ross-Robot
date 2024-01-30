@@ -160,7 +160,7 @@ def image_to_graph(bin_img, pruning=False):
                     vertical_node = f'v{x_neighbor}_{y_node}'
                     # Check if the horizontal and vertical nodes are in the graph and are adjacent to the node and the neighbor
                     if (horizontal_node in graph and horizontal_node in graph[node] and horizontal_node in graph[neighbor]) and \
-                    (vertical_node in graph and vertical_node in graph[node] and vertical_node in graph[neighbor]):
+                       (vertical_node in graph and vertical_node in graph[node] and vertical_node in graph[neighbor]):
                         # Remove the diagonal edge from the pruned graph
                         pruned_graph[node].remove(neighbor)
                         pruned_graph[neighbor].remove(node)
