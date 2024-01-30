@@ -81,7 +81,7 @@ def cmd_sender(commands):
                                 obj_byte_size=str_size,
                                 start_pos=0)
         
-        if i%150 == 0:
+        if i%125 == 0:
             send_size = 0 
             str_size = link.tx_obj("xxx", send_size) - send_size
             send_size += str_size
