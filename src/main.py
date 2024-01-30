@@ -59,11 +59,11 @@ def cmd_sender(commands):
     link.open()
     time.sleep(2) # allow some time for the Arduino to completely reset
 
+    i = 0
     for cmd in commands:
-        send_size = 0   
+        send_size = 0 
         str_size = link.tx_obj(cmd, send_size) - send_size
         send_size += str_size
-
         link.send(str_size)
 
         while not link.available():
@@ -80,10 +80,32 @@ def cmd_sender(commands):
         rec_cmd   = link.rx_obj(obj_type=type(cmd),
                                 obj_byte_size=str_size,
                                 start_pos=0)
+        
+        if i%200 == 0:
+            str_size = link.tx_obj("xxx", send_size) - send_size
+            send_size += str_size
+            link.send(str_size)
+
+            while not link.available():
+                if link.status < 0:
+                    if link.status == txfer.CRC_ERROR:
+                        print('ERROR: CRC_ERROR')
+                    elif link.status == txfer.PAYLOAD_ERROR:
+                        print('ERROR: PAYLOAD_ERROR')
+                    elif link.status == txfer.STOP_BYTE_ERROR:
+                        print('ERROR: STOP_BYTE_ERROR')
+                    else:
+                        print('ERROR: {}'.format(link.status))
+
+            rec_cmd   = link.rx_obj(obj_type=type(cmd),
+                                    obj_byte_size=str_size,
+                                    start_pos=0)
+        
+        i += 1
 
 
 def main(Args=None):
-    test_image = cv2.imread("./assets/images/logo/Bot-Ross Logo-L-02.png")
+    test_image = cv2.imread("./assets/images/test/AUT-Logo.png")
     # test_image = text_to_image("K-P")
     # test_image = np.array([[0, 1, 0, 1, 0, 1],
     #                        [0, 0, 0, 1, 0, 1],
