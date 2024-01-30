@@ -82,6 +82,7 @@ def cmd_sender(commands):
                                 start_pos=0)
         
         if i%150 == 0:
+            send_size = 0 
             str_size = link.tx_obj("xxx", send_size) - send_size
             send_size += str_size
             link.send(str_size)
@@ -97,12 +98,12 @@ def cmd_sender(commands):
                     else:
                         print('ERROR: {}'.format(link.status))
 
-            rec_cmd   = link.rx_obj(obj_type=type(cmd),
+            rec_cmd   = link.rx_obj(obj_type=type("xxx"),
                                     obj_byte_size=str_size,
                                     start_pos=0)
 
                                     
-            print('SENT: {}'.format(cmd))
+            print('SENT: {}'.format("xxx"))
             print('RCVD: {}'.format(rec_cmd))
             print('Bot-Ross Tighted!')
         
