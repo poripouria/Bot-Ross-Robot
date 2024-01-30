@@ -244,7 +244,7 @@ void loop()
           startTime = millis();
         }
 
-        else if(myTransfer.packet.txBuff[1]=='0' && myTransfer.packet.txBuff[2]=='0')
+        else if(myTransfer.packet.txBuff[0]=='0' && myTransfer.packet.txBuff[1]=='0' && myTransfer.packet.txBuff[2]=='0')
         {
           penup();
           startTime = millis();
@@ -252,9 +252,14 @@ void loop()
           startTime = millis();
           while (millis() - startTime < 1000)   tight();
         }
+        
+        else if(myTransfer.packet.txBuff[0]=='x' && myTransfer.packet.txBuff[1]=='x' && myTransfer.packet.txBuff[2]=='x')
+        {
+          startTime = millis();
+          while (millis() - startTime < 300)   tight(); 
+        }
+        
     }
-    
     myTransfer.sendData(myTransfer.bytesRead);
   }
 }
-
