@@ -151,21 +151,25 @@ void loop()
       
        if(myTransfer.packet.txBuff[0]=='1' && penstate==0)
         {
-          while(millis() - startTime < 100)
+          while(millis() - startTime < 200)
           {
             pendown();
             penstate=1;
           }
           startTime = millis();
+          while (millis() - startTime < 50);
+          startTime = millis();
         }
     
         else if(myTransfer.packet.txBuff[0]=='0' && penstate==1)
         {
-          while(millis() - startTime < 100)
+          while(millis() - startTime < 200)
           {
             penup();
             penstate=0;
           }
+          startTime = millis();
+          while (millis() - startTime < 50);
           startTime = millis();
         }
     
@@ -175,12 +179,16 @@ void loop()
         {
           while(millis() - startTime < 100)   updown(-1);
           startTime = millis();
+          while (millis() - startTime < 50);
+          startTime = millis();
         }
           
         //up
         else if(myTransfer.packet.txBuff[1]=='+' && myTransfer.packet.txBuff[2]=='0')
         {
           while(millis() - startTime < 100)   updown(+1);
+          startTime = millis();
+          while (millis() - startTime < 50);
           startTime = millis();
         }
           
@@ -189,12 +197,16 @@ void loop()
         {  
           while(millis() - startTime < 100)   leftright(-1);
           startTime = millis();
+          while (millis() - startTime < 50);
+          startTime = millis();
         }
           
         //left
         else if(myTransfer.packet.txBuff[1]=='0' && myTransfer.packet.txBuff[2]=='+')
         {
           while(millis() - startTime < 100)   leftright(+1);
+          startTime = millis();
+          while (millis() - startTime < 50);
           startTime = millis();
         }
     
@@ -209,6 +221,8 @@ void loop()
             leftright(-1);
           }
           startTime = millis();
+          while (millis() - startTime < 50);
+          startTime = millis();
         }
     
         //up-right
@@ -219,6 +233,8 @@ void loop()
             updown(+1);
             leftright(-1);
           }
+          startTime = millis();
+          while (millis() - startTime < 50);
           startTime = millis();
         }
     
@@ -231,6 +247,8 @@ void loop()
             leftright(+1);
           }
           startTime = millis();
+          while (millis() - startTime < 50);
+          startTime = millis();
         }
         
         //up-left
@@ -241,6 +259,8 @@ void loop()
             updown(+1);
             leftright(+1);
           }
+          startTime = millis();
+          while (millis() - startTime < 50);
           startTime = millis();
         }
 
@@ -257,6 +277,9 @@ void loop()
         {
           startTime = millis();
           while (millis() - startTime < 300)   tight(); 
+          startTime = millis();
+          while (millis() - startTime < 100);
+          startTime = millis();
         }
         
     }
