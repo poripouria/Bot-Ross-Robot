@@ -3,4 +3,4 @@ scipy
 matplotlib
 opencv-python # cv2
 pillow # PIL
-pySerialTransfer
+pySerialTransfer # Connect Python to Arduino 
