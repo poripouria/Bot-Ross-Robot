@@ -5,8 +5,11 @@ A cable-driven parallel robot that has ability to draw
 <p align="center">
   <a>
     <img src="./data/BotRoss Circle.jpg">
+  </a>
+  <a>
     <img src="./data/BotRoss Preset.jpg">
+  </a>
+  <a>
     <img src="./data/BotRoss AUT.jpg">
-
   </a>
 </p>
